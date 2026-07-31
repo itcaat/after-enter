@@ -7,13 +7,13 @@ import { NetworkSimulator } from "./network-simulator";
 const shellCopy: Record<Locale, { title: string; description: string; brand: string; source: string }> = {
   ru: {
     title: "Что происходит после нажатия Enter?",
-    description: "Интерактивная симуляция пути от URL до готовой веб-страницы.",
+    description: "Интерактивный путь через ОС, DNS, интернет, CDN, backend и рендеринг страницы.",
     brand: "Что происходит после нажатия",
     source: "Источники на Хабре",
   },
   en: {
     title: "What happens after you press Enter?",
-    description: "An interactive simulation of a web request, from the URL to a rendered page.",
+    description: "An interactive path across the OS, DNS, internet, CDN, backend, and page rendering.",
     brand: "What happens after you press",
     source: "Sources on Habr",
   },

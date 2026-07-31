@@ -68,7 +68,7 @@ a { color: inherit; }
 .protocol-chip { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border: 1px solid var(--line); border-radius: 99px; }
 .chip-dot { width: 6px; height: 6px; border-radius: 50%; background: #d4836b; }
 .chip-dot.secure { background: var(--mint); }
-.flow { display: grid; grid-template-columns: repeat(8, minmax(58px, 1fr)); align-items: start; margin: 62px 0 22px; }
+.flow { display: grid; align-items: start; overflow-x: auto; margin: 62px 0 22px; padding: 8px 0 14px; scroll-padding-inline: 50%; scroll-snap-type: x proximity; scrollbar-color: var(--acid) transparent; scrollbar-width: thin; overscroll-behavior-inline: contain; }
 .flow-step { min-width: 0; color: var(--muted); transition: color .25s ease, transform .25s ease; }
 .flow-node { display: flex; align-items: center; }
 .flow-circle { position: relative; z-index: 2; display: grid; place-items: center; flex: 0 0 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); color: inherit; font: 500 9px/1 var(--font-plex-mono), monospace; letter-spacing: .05em; cursor: pointer; transition: .25s ease; }
@@ -124,16 +124,7 @@ a { color: inherit; }
   .simulator { grid-template-columns: 250px minmax(0, 1fr); }
   .control-panel { padding: 24px; }
   .simulation-stage { padding-inline: 24px; }
-  .flow {
-    grid-template-columns: repeat(8, 112px);
-    overflow-x: auto;
-    padding: 8px 0 14px;
-    scroll-padding-inline: 50%;
-    scroll-snap-type: x proximity;
-    scrollbar-color: var(--acid) transparent;
-    scrollbar-width: thin;
-    overscroll-behavior-inline: contain;
-  }
+  .flow { margin-top: 48px; }
   .flow-step { min-width: 0; scroll-snap-align: center; }
   .flow-step > small { width: 100px; padding-right: 8px; overflow-wrap: anywhere; }
   .flow::-webkit-scrollbar, .substep-track::-webkit-scrollbar { height: 4px; }

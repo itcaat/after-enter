@@ -10,21 +10,21 @@ const siteUrl = new URL(configuredSiteUrl.endsWith("/") ? configuredSiteUrl : `$
 export const metadata: Metadata = {
   metadataBase: siteUrl,
   title: "What happens after you press Enter?",
-  description: "An interactive simulation of a web request, from the URL to pixels.",
+  description: "Explore the complete path from keyboard input and DNS to edge infrastructure, backend processing, and pixels.",
   icons: {
     icon: new URL("favicon.svg", siteUrl),
     shortcut: new URL("favicon.svg", siteUrl),
   },
   openGraph: {
     title: "What happens after you press Enter?",
-    description: "Follow a web request from DNS lookup to rendering.",
+    description: "Follow a web request across the OS, internet, edge, backend, and rendering pipeline.",
     type: "website",
     images: [{ url: new URL("og.png", siteUrl), width: 1200, height: 630, alt: "What happens after you press Enter?" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "What happens after you press Enter?",
-    description: "An interactive simulation of a web request.",
+    description: "An interactive simulation of the complete web request path.",
     images: [new URL("og.png", siteUrl)],
   },
 };

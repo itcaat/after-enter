@@ -3,7 +3,7 @@ import { LocalizedShell } from "./localized-shell";
 
 export const metadata: Metadata = {
   title: "What happens after you press Enter?",
-  description: "An interactive simulation of a web request, from the URL to a rendered page.",
+  description: "An interactive simulation of the full web request path: OS, DNS, network, edge, backend, HTTP, and rendering.",
 };
 
 export default function Home() {
