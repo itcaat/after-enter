@@ -82,24 +82,27 @@ a { color: inherit; }
 .flow { display: grid; grid-template-columns: repeat(8, minmax(58px, 1fr)); align-items: start; margin: 62px 0 22px; }
 .flow-step { min-width: 0; color: var(--muted); transition: color .25s ease, transform .25s ease; }
 .flow-node { display: flex; align-items: center; }
-.flow-node span { position: relative; z-index: 2; display: grid; place-items: center; flex: 0 0 44px; height: 44px; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); font: 500 9px/1 var(--font-plex-mono), monospace; letter-spacing: .05em; transition: .25s ease; }
+.flow-circle { position: relative; z-index: 2; display: grid; place-items: center; flex: 0 0 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); color: inherit; font: 500 9px/1 var(--font-plex-mono), monospace; letter-spacing: .05em; cursor: pointer; transition: .25s ease; }
+.flow-circle:hover:not(:disabled), .substep-circle:hover { border-color: var(--acid); color: var(--paper); transform: translateY(-2px); }
+.flow-circle:focus-visible, .substep-circle:focus-visible { outline: 2px solid var(--acid); outline-offset: 3px; }
+.flow-circle:disabled { cursor: not-allowed; }
 .flow-node i { width: 100%; height: 1px; background: var(--line); transition: background .25s ease; }
 .flow-step > small { display: block; width: 70px; margin-top: 10px; font: 400 9px/1.35 var(--font-plex-mono), monospace; }
 .flow-step.is-active { color: var(--paper); transform: translateY(-5px); }
-.flow-step.is-active .flow-node span { background: var(--acid); border-color: var(--acid); color: var(--ink); box-shadow: 0 0 0 8px rgba(201,255,53,.08); }
+.flow-step.is-active .flow-circle { background: var(--acid); border-color: var(--acid); color: var(--ink); box-shadow: 0 0 0 8px rgba(201,255,53,.08); }
 .flow-step.is-complete { color: var(--paper); }
-.flow-step.is-complete .flow-node span { border-color: var(--mint); color: var(--mint); }
+.flow-step.is-complete .flow-circle { border-color: var(--mint); color: var(--mint); }
 .flow-step.is-complete .flow-node i { background: var(--mint); }
 .flow-step.is-skipped { opacity: .35; }
-.flow-step.is-skipped .flow-node span { border-style: dashed; }
+.flow-step.is-skipped .flow-circle { border-style: dashed; }
 .progress-rail { height: 2px; margin-bottom: 28px; background: var(--line); overflow: hidden; }
 .progress-rail span { display: block; height: 100%; background: var(--acid); transition: width .45s ease; }
 .event-console { min-height: 270px; padding: 24px 28px 28px; border: 1px solid var(--line); background: rgba(13,18,14,.72); }
 .substep-track { display: flex; align-items: flex-start; gap: 0; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
 .substep-item { position: relative; display: grid; grid-template-rows: auto auto 1fr; justify-items: center; gap: 7px; flex: 1 1 0; min-width: 0; color: var(--muted); text-align: center; }
-.substep-item::after { content: ""; position: absolute; top: 13px; left: calc(50% + 14px); width: calc(100% - 28px); height: 1px; background: var(--line); }
+.substep-item::after { content: ""; position: absolute; top: 17px; left: calc(50% + 17px); width: calc(100% - 34px); height: 1px; background: var(--line); }
 .substep-item:last-child::after { display: none; }
-.substep-circle { position: relative; z-index: 1; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); font: 500 9px/1 var(--font-plex-mono), monospace; transition: .25s ease; }
+.substep-circle { position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); color: inherit; font: 500 9px/1 var(--font-plex-mono), monospace; cursor: pointer; transition: .25s ease; }
 .substep-label { max-width: 120px; color: inherit; font: 500 9px/1.3 var(--font-plex-mono), monospace; }
 .substep-why { max-width: 130px; color: rgba(237,240,231,.42); font-size: 10px; line-height: 1.35; }
 .substep-item.is-complete { color: var(--paper); }
