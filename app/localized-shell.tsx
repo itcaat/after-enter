@@ -9,13 +9,13 @@ const shellCopy: Record<Locale, { title: string; description: string; brand: str
     title: "Что происходит после нажатия Enter?",
     description: "Интерактивная симуляция пути от URL до готовой веб-страницы.",
     brand: "Что происходит после нажатия",
-    source: "По материалам статьи на Хабре ↗",
+    source: "Источники на Хабре",
   },
   en: {
     title: "What happens after you press Enter?",
     description: "An interactive simulation of a web request, from the URL to a rendered page.",
     brand: "What happens after you press",
-    source: "Based on an article on Habr ↗",
+    source: "Sources on Habr",
   },
 };
 
@@ -43,9 +43,9 @@ export function LocalizedShell() {
       <NetworkSimulator />
 
       <footer className="site-footer">
-        <a href="https://habr.com/ru/companies/gnivc/articles/861432/" target="_blank" rel="noreferrer">
-          {copy.source}
-        </a>
+        <span>{copy.source}:</span>
+        <a href="https://habr.com/ru/companies/gnivc/articles/861432/" target="_blank" rel="noreferrer">2024 ↗</a>
+        <a href="https://habr.com/ru/companies/htmlacademy/articles/254825/" target="_blank" rel="noreferrer">2015 ↗</a>
       </footer>
     </main>
   );

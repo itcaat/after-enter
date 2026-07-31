@@ -87,8 +87,8 @@ a { color: inherit; }
 .progress-rail { height: 2px; margin-bottom: 28px; background: var(--line); overflow: hidden; }
 .progress-rail span { display: block; height: 100%; background: var(--acid); transition: width .45s ease; }
 .event-console { min-height: 270px; padding: 24px 28px 28px; border: 1px solid var(--line); background: rgba(13,18,14,.72); }
-.substep-track { display: flex; align-items: flex-start; gap: 0; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
-.substep-item { position: relative; display: grid; grid-template-rows: auto auto 1fr; justify-items: center; gap: 7px; flex: 1 1 0; min-width: 0; color: var(--muted); text-align: center; }
+.substep-track { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--line); scrollbar-color: var(--acid) transparent; scrollbar-width: thin; scroll-padding-inline: 50%; overscroll-behavior-inline: contain; }
+.substep-item { position: relative; display: grid; grid-template-rows: auto auto 1fr; justify-items: center; gap: 7px; flex: 1 0 116px; min-width: 0; color: var(--muted); text-align: center; scroll-snap-align: center; }
 .substep-item::after { content: ""; position: absolute; top: 17px; left: calc(50% + 17px); width: calc(100% - 34px); height: 1px; background: var(--line); }
 .substep-item:last-child::after { display: none; }
 .substep-circle { position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--panel); color: inherit; font: 500 9px/1 var(--font-plex-mono), monospace; cursor: pointer; transition: .25s ease; }
@@ -115,7 +115,7 @@ a { color: inherit; }
 .metric-row strong { font-size: 20px; font-weight: 500; }
 .metric-row strong small { color: var(--muted); font-size: 10px; }
 
-.site-footer { display: flex; justify-content: flex-end; padding: 22px 0 0; color: var(--muted); font: 400 10px/1.4 var(--font-plex-mono), monospace; text-transform: uppercase; }
+.site-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 22px 0 0; color: var(--muted); font: 400 10px/1.4 var(--font-plex-mono), monospace; text-transform: uppercase; }
 .site-footer a { text-underline-offset: 4px; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
