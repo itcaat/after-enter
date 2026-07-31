@@ -66,7 +66,7 @@ a { color: inherit; }
 .run-button:disabled { cursor: wait; opacity: .72; }
 .run-icon { font: 500 22px/1 var(--font-plex-mono), monospace; }
 .spinner { width: 15px; height: 15px; border: 2px solid rgba(17,22,18,.3); border-top-color: var(--ink); border-radius: 50%; animation: spin .75s linear infinite; }
-.manual-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+.manual-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 34px; }
 .manual-button { min-height: 52px; border: 1px solid var(--line); background: var(--panel-soft); color: var(--paper); font-weight: 600; cursor: pointer; transition: transform .2s ease, border-color .2s ease; }
 .manual-button:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--muted); }
 .manual-button.is-primary { border-color: var(--acid); background: var(--acid); color: var(--ink); }
