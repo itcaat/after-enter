@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { computed, createApp, defineComponent, h, nextTick, ref } from "vue";
+import { computed, createApp, defineComponent, h, nextTick, ref, watch } from "vue";
 
 type Substep = {
   label: string;
@@ -144,6 +144,8 @@ const VueSimulator = defineComponent({
     const done = ref(false);
     const running = ref(false);
     const token = ref(0);
+    const flowRef = ref<HTMLElement | null>(null);
+    const substepTrackRef = ref<HTMLElement | null>(null);
 
     const secure = computed(() => {
       try { return new URL(/^https?:\/\//i.test(url.value) ? url.value : `https://${url.value}`).protocol === "https:"; }
@@ -165,6 +167,20 @@ const VueSimulator = defineComponent({
     const totalEstimate = computed(() => route.value.reduce((sum, unit) => sum + unit.ms, 0));
 
     const pause = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms));
+
+    function centerActive(container: HTMLElement | null, selector: string) {
+      const target = container?.querySelector<HTMLElement>(selector);
+      if (!container || !target) return;
+      const left = target.offsetLeft - (container.clientWidth - target.offsetWidth) / 2;
+      const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+      container.scrollTo({ left: Math.max(0, left), behavior });
+    }
+
+    watch(current, async () => {
+      await nextTick();
+      centerActive(flowRef.value, ".flow-step.is-active");
+      centerActive(substepTrackRef.value, ".substep-item.is-active");
+    });
 
     function normalizeUrl() {
       try {
@@ -288,7 +304,7 @@ const VueSimulator = defineComponent({
           h("div", { class: "protocol-chip" }, [h("span", { class: secure.value ? "chip-dot secure" : "chip-dot" }), secure.value ? "HTTPS · 443" : "HTTP · 80"]),
         ]),
 
-        h("div", { class: "flow", role: "list", "aria-label": "Этапы загрузки" }, stages.map((stage, index) =>
+        h("div", { ref: flowRef, class: "flow", role: "list", "aria-label": "Этапы загрузки" }, stages.map((stage, index) =>
           h("div", { class: stageClass(stage, index), role: "listitem", key: stage.key }, [
             h("div", { class: "flow-node" }, [h("span", stage.short), index < stages.length - 1 ? h("i") : null]),
             h("small", stage.title),
@@ -298,7 +314,7 @@ const VueSimulator = defineComponent({
         h("div", { class: "progress-rail", "aria-hidden": "true" }, h("span", { style: { width: `${progress.value}%` } })),
 
         h("div", { class: ["event-console", done.value && "is-done"] }, [
-          activeStage.value ? h("div", { class: "substep-track", "aria-label": `Подшаги этапа ${activeStage.value.title}` },
+          activeStage.value ? h("div", { ref: substepTrackRef, class: "substep-track", "aria-label": `Подшаги этапа ${activeStage.value.title}` },
             activeStageSubsteps.value.map((substep, index) => h("div", {
               class: ["substep-item", index === activeUnit.value?.substepIndex && "is-active", index < (activeUnit.value?.substepIndex ?? -1) && "is-complete"],
               key: substep.label,
