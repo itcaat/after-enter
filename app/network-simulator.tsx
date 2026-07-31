@@ -153,7 +153,10 @@ const VueSimulator = defineComponent({
         ]),
 
         h("div", { class: "metric-row", "aria-live": "polite" }, [
-          h("div", [h("span", "Условное время"), h("strong", `${elapsed.value} `, h("small", "мс"))]),
+          h("div", [
+            h("span", "Условное время"),
+            h("strong", [String(elapsed.value), " ", h("small", "мс")]),
+          ]),
           h("div", [h("span", "Сетевые обмены"), h("strong", String(exchanges.value))]),
           h("div", [h("span", "Текущий узел"), h("strong", done.value ? "Интерактив" : activeStage.value?.actor ?? "—")]),
         ]),
