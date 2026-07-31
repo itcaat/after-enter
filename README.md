@@ -29,19 +29,23 @@ After Enter превращает скрытый путь веб-запроса �
 
 ## Что показывает симулятор
 
-- обработку нажатия `Enter`, разбор URL, HSTS и Punycode;
+- путь ввода через HID, USB/Bluetooth, драйвер, очередь событий ОС и активное окно;
+- разбор URL, HSTS, Punycode и перехват навигации Service Worker;
 - кеши браузера и ОС, рекурсивный и авторитативный DNS;
 - локальную таблицу маршрутов, ARP/NDP, Wi-Fi или Ethernet, NAT и firewall;
+- очереди сетевого адаптера, физический сигнал, switch/AP, modem/ONT и последнюю милю;
 - IPv4/IPv6, MTU, маршрутизаторы, BGP, Anycast и TTL/Hop Limit;
 - TCP handshake, надёжность и congestion control, а также QUIC и HTTP/3;
 - TLS 1.3, SNI, ALPN, сертификат, ключи, Finished и session resumption;
 - формирование HTTP-запроса и обработку на сервере;
 - CDN PoP, DDoS-защиту, WAF, TLS termination, балансировку и edge-кеш;
+- серверный NIC, DMA, сетевой стек ядра, conntrack, socket/accept queues и scheduler;
 - reverse proxy, middleware, бизнес-логику, кеш приложения, базу данных и внешние сервисы;
 - статусы ответа, ETag, `304 Not Modified` и поток HTML;
 - загрузку CSS, JavaScript, шрифтов и изображений;
-- DOM, CSSOM, Render Tree, Layout, Paint, растеризацию и композицию;
-- момент готовности страницы к пользовательскому вводу.
+- декодирование байтов, парсинг JavaScript, bytecode/JIT, Web APIs, event loop, GC и Workers;
+- DOM, CSSOM, дерево доступности, формирование текста, Layout, Paint, растеризацию и композицию;
+- DOMContentLoaded, `load`, обработку ввода, Keep-Alive, закрытие соединения, кеши и телеметрию.
 
 ## Особенности
 
