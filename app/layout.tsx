@@ -9,29 +9,29 @@ const siteUrl = new URL(configuredSiteUrl.endsWith("/") ? configuredSiteUrl : `$
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: "Что происходит после нажатия Enter?",
-  description: "Интерактивная симуляция пути веб-запроса — от URL до пикселей.",
+  title: "What happens after you press Enter?",
+  description: "An interactive simulation of a web request, from the URL to pixels.",
   icons: {
     icon: new URL("favicon.svg", siteUrl),
     shortcut: new URL("favicon.svg", siteUrl),
   },
   openGraph: {
-    title: "Что происходит после нажатия Enter?",
-    description: "Проследите путь веб-запроса от DNS до рендеринга.",
+    title: "What happens after you press Enter?",
+    description: "Follow a web request from DNS lookup to rendering.",
     type: "website",
-    images: [{ url: new URL("og.png", siteUrl), width: 1200, height: 630, alt: "Что происходит после нажатия Enter?" }],
+    images: [{ url: new URL("og.png", siteUrl), width: 1200, height: 630, alt: "What happens after you press Enter?" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Что происходит после нажатия Enter?",
-    description: "Интерактивная симуляция пути веб-запроса.",
+    title: "What happens after you press Enter?",
+    description: "An interactive simulation of a web request.",
     images: [new URL("og.png", siteUrl)],
   },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <body className={`${manrope.variable} ${plexMono.variable}`}>{children}</body>
     </html>
   );

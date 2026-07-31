@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { computed, createApp, defineComponent, h, nextTick, ref, watch } from "vue";
+import { detectBrowserLocale, type Locale } from "./i18n";
 
 type Substep = {
   label: string;
@@ -24,7 +25,7 @@ type RouteUnit = Substep & {
   substepIndex: number;
 };
 
-const stages: Stage[] = [
+const russianStages: Stage[] = [
   {
     key: "url", short: "URL", title: "Разбор адреса", actor: "Браузер",
     substeps: [
@@ -96,11 +97,11 @@ const stages: Stage[] = [
   },
 ];
 
-const cachedDnsSubsteps: Substep[] = [
+const russianCachedDnsSubsteps: Substep[] = [
   { label: "Попадание в кеш", detail: "Браузер сразу находит сохранённую DNS-запись и не обращается во внешнюю сеть.", signal: "browser DNS cache → 93.184.216.34", ms: 8, exchanges: 0 },
 ];
 
-const substepPurpose: Record<string, string> = {
+const russianSubstepPurpose: Record<string, string> = {
   "Ввод URL": "Запускает переход к сайту",
   "Разбор частей": "Помогает понять, куда обращаться",
   "Выбор порта": "Определяет точку подключения",
@@ -133,9 +134,150 @@ const substepPurpose: Record<string, string> = {
   "Интерактивность": "Делает страницу управляемой",
 };
 
+const englishStages: Stage[] = [
+  {
+    key: "url", short: "URL", title: "Parse the address", actor: "Browser",
+    substeps: [
+      { label: "Enter the URL", detail: "The user enters an address and presses Enter, prompting the browser to start navigating.", signal: "https://example.com", ms: 3, exchanges: 0 },
+      { label: "Parse its parts", detail: "The address is split into the scheme, domain, path, query parameters, and fragment.", signal: "scheme · host · path · query", ms: 8, exchanges: 0 },
+      { label: "Choose the port", detail: "HTTPS uses port 443 by default, while HTTP uses port 80.", signal: "https → :443", ms: 7, exchanges: 0 },
+    ],
+  },
+  {
+    key: "dns", short: "DNS", title: "Find the IP address", actor: "DNS",
+    substeps: [
+      { label: "Browser cache", detail: "The browser first checks whether it already knows the IP address for this domain.", signal: "browser DNS cache → miss", ms: 8, exchanges: 0 },
+      { label: "System cache", detail: "Next, the operating system checks its DNS cache and hosts file.", signal: "OS cache / hosts → miss", ms: 12, exchanges: 0 },
+      { label: "Recursive DNS", detail: "The request goes to the router or the nearest recursive DNS resolver.", signal: "client → recursive resolver", ms: 35, exchanges: 1 },
+      { label: "Root and TLD", detail: "The resolver asks a root server which name server is responsible for the domain zone.", signal: "root → .com nameserver", ms: 55, exchanges: 1 },
+      { label: "Authoritative DNS", detail: "The authoritative server returns the final A or AAAA record.", signal: "example.com → 93.184.216.34", ms: 70, exchanges: 1 },
+    ],
+  },
+  {
+    key: "tcp", short: "TCP", title: "Three-way handshake", actor: "Network",
+    substeps: [
+      { label: "SYN", detail: "The client proposes a connection and sends its initial sequence number.", signal: "client → SYN", ms: 40, exchanges: 1 },
+      { label: "SYN-ACK", detail: "The server accepts the proposal and confirms that it is ready to communicate.", signal: "server → SYN-ACK", ms: 40, exchanges: 1 },
+      { label: "ACK", detail: "The client acknowledges the response, completing the reliable TCP connection.", signal: "client → ACK · connected", ms: 40, exchanges: 1 },
+    ],
+  },
+  {
+    key: "tls", short: "TLS", title: "Secure the channel", actor: "TLS",
+    substeps: [
+      { label: "Client Hello", detail: "The browser announces its supported TLS versions, cipher suites, and random data.", signal: "ClientHello · TLS 1.3", ms: 35, exchanges: 1 },
+      { label: "Certificate", detail: "The server chooses the parameters and sends a certificate containing its public key.", signal: "ServerHello + Certificate", ms: 45, exchanges: 1 },
+      { label: "Verification", detail: "The browser verifies the domain, expiry date, and certificate trust chain.", signal: "CA chain → verified", ms: 35, exchanges: 0 },
+      { label: "Session key", detail: "Both sides derive a shared secret so that subsequent traffic is encrypted.", signal: "session keys → encrypted", ms: 45, exchanges: 1 },
+    ],
+  },
+  {
+    key: "http", short: "GET", title: "Send the HTTP request", actor: "HTTP",
+    substeps: [
+      { label: "Method and path", detail: "The browser builds the request line with the GET method and resource path.", signal: "GET / HTTP/1.1", ms: 8, exchanges: 0 },
+      { label: "Headers", detail: "Host, User-Agent, Accept-Language, Cookie, and other headers add request context.", signal: "Host · Accept · Cookie", ms: 12, exchanges: 0 },
+      { label: "Send", detail: "The finished request travels to the server through the encrypted TCP channel.", signal: "encrypted request → server", ms: 20, exchanges: 1 },
+    ],
+  },
+  {
+    key: "response", short: "200", title: "Receive the response", actor: "Server",
+    substeps: [
+      { label: "Process", detail: "The web server locates the resource and prepares the response for the client.", signal: "route → document", ms: 75, exchanges: 0 },
+      { label: "Status and headers", detail: "The browser first receives 200 OK, Content-Type, Cache-Control, cookies, and other headers.", signal: "200 OK · text/html", ms: 35, exchanges: 1 },
+      { label: "Response body", detail: "The HTML arrives in chunks, so the browser can start working before the download ends.", signal: "HTML byte stream → browser", ms: 50, exchanges: 1 },
+    ],
+  },
+  {
+    key: "assets", short: "RES", title: "Load resources", actor: "Browser",
+    substeps: [
+      { label: "Parse HTML", detail: "The browser parses the HTML stream from top to bottom and discovers linked resources.", signal: "HTML tokenizer → tags", ms: 55, exchanges: 0 },
+      { label: "CSS and JavaScript", detail: "Stylesheets, scripts, and fonts receive their own prioritized requests.", signal: "CSS · JS · FONT", ms: 95, exchanges: 2 },
+      { label: "Images", detail: "Images load in parallel and are decoded before they can be displayed.", signal: "IMG requests → decode", ms: 100, exchanges: 2 },
+    ],
+  },
+  {
+    key: "render", short: "PIX", title: "Render the page", actor: "Renderer",
+    substeps: [
+      { label: "DOM", detail: "The browser turns the HTML into the document object model, or DOM.", signal: "HTML → DOM tree", ms: 65, exchanges: 0 },
+      { label: "CSSOM", detail: "CSS rules are parsed into a separate style model called the CSSOM.", signal: "CSS → CSSOM", ms: 65, exchanges: 0 },
+      { label: "Layout", detail: "The DOM and CSSOM form a render tree; the browser calculates sizes and positions.", signal: "render tree → layout", ms: 80, exchanges: 0 },
+      { label: "Paint", detail: "Elements are painted into layers and composited into the final page image.", signal: "paint → composite → pixels", ms: 70, exchanges: 0 },
+      { label: "Interactivity", detail: "JavaScript and event handlers are ready to respond to the user.", signal: "DOMContentLoaded → interactive", ms: 40, exchanges: 0 },
+    ],
+  },
+];
+
+const englishCachedDnsSubsteps: Substep[] = [
+  { label: "Cache hit", detail: "The browser immediately finds the saved DNS record and avoids an external network request.", signal: "browser DNS cache → 93.184.216.34", ms: 8, exchanges: 0 },
+];
+
+const englishSubstepPurpose: Record<string, string> = {
+  "Enter the URL": "Starts navigation to the website",
+  "Parse its parts": "Identifies where the browser should connect",
+  "Choose the port": "Selects the network endpoint",
+  "Browser cache": "Avoids an external DNS request",
+  "System cache": "Reuses a previously known address",
+  "Recursive DNS": "Handles the address lookup for the client",
+  "Root and TLD": "Finds the correct domain zone",
+  "Authoritative DNS": "Returns the final IP address",
+  "Cache hit": "Immediately returns the saved IP",
+  "SYN": "Proposes opening a connection",
+  "SYN-ACK": "Confirms that the server is ready",
+  "ACK": "Completes the TCP connection",
+  "Client Hello": "Negotiates encryption capabilities",
+  "Certificate": "Proves the server's identity",
+  "Verification": "Protects against website impersonation",
+  "Session key": "Encrypts the rest of the exchange",
+  "Method and path": "Specifies which resource is needed",
+  "Headers": "Provide context for the request",
+  "Send": "Delivers the request to the server",
+  "Process": "Finds and prepares the result",
+  "Status and headers": "Explains the result to the browser",
+  "Response body": "Transfers the page content",
+  "Parse HTML": "Discovers the structure and dependencies",
+  "CSS and JavaScript": "Adds presentation and behavior",
+  "Images": "Fills the page with visual content",
+  "DOM": "Creates the document structure",
+  "CSSOM": "Creates the style model",
+  "Layout": "Calculates sizes and positions",
+  "Paint": "Turns elements into pixels",
+  "Interactivity": "Makes the page responsive to input",
+};
+
+const uiCopy: Record<Locale, Record<string, string>> = {
+  ru: {
+    simulatorLabel: "Симулятор загрузки веб-страницы", parameters: "Параметры", websiteAddress: "Адрес сайта",
+    modeLabel: "Режим прохождения", auto: "Авто", manual: "Вручную", dnsCache: "DNS-кеш", ipKnown: "IP уже известен",
+    fullLookup: "Полный поиск", pace: "Темп показа", detailed: "подробно", faster: "быстрее", showing: "Показываем путь",
+    runAgain: "Запустить снова", start: "Начать показ", back: "← Назад", restart: "Сначала ↺", next: "Далее →",
+    fullPath: "Полный путь", substepsOf: "из", substeps: "подшагов", loadingStages: "Этапы загрузки", goStage: "Перейти к этапу",
+    stageSubsteps: "Подшаги этапа", goSubstep: "Перейти к подшагу", defaultPurpose: "Обеспечивает следующий этап",
+    substepsPlaceholder: "Подшаги появятся после запуска", ready: "Готово", browser: "Браузер", pageReady: "Страница готова к работе",
+    enterAddress: "Введите адрес и начните путь", doneDetail: "Пиксели отрисованы, обработчики событий активны — пользователь может взаимодействовать со страницей.",
+    introDetail: "Вы увидите не только большие этапы, но и каждый внутренний подшаг.", conditionalTime: "Условное время",
+    networkExchanges: "Сетевые обмены", currentNode: "Текущий узел", interactive: "Интерактив", milliseconds: "мс",
+  },
+  en: {
+    simulatorLabel: "Web page loading simulator", parameters: "Parameters", websiteAddress: "Website address",
+    modeLabel: "Playback mode", auto: "Auto", manual: "Manual", dnsCache: "DNS cache", ipKnown: "IP already known",
+    fullLookup: "Full lookup", pace: "Playback speed", detailed: "detailed", faster: "faster", showing: "Showing the route",
+    runAgain: "Run again", start: "Start simulation", back: "← Back", restart: "Start over ↺", next: "Next →",
+    fullPath: "Full route", substepsOf: "of", substeps: "substeps", loadingStages: "Loading stages", goStage: "Go to stage",
+    stageSubsteps: "Substeps for", goSubstep: "Go to substep", defaultPurpose: "Enables the next stage",
+    substepsPlaceholder: "Substeps will appear after you start", ready: "Ready", browser: "Browser", pageReady: "The page is ready",
+    enterAddress: "Enter an address and start the journey", doneDetail: "Pixels are painted and event handlers are active, so the user can interact with the page.",
+    introDetail: "You will see every major stage and each of its internal substeps.", conditionalTime: "Illustrative time",
+    networkExchanges: "Network exchanges", currentNode: "Current node", interactive: "Interactive", milliseconds: "ms",
+  },
+};
+
 const VueSimulator = defineComponent({
   name: "VueNetworkSimulator",
   setup() {
+    const locale = detectBrowserLocale();
+    const text = uiCopy[locale];
+    const stages = locale === "ru" ? russianStages : englishStages;
+    const cachedDnsSubsteps = locale === "ru" ? russianCachedDnsSubsteps : englishCachedDnsSubsteps;
+    const substepPurpose = locale === "ru" ? russianSubstepPurpose : englishSubstepPurpose;
     const url = ref("https://example.com");
     const cache = ref(false);
     const speed = ref(0.75);
@@ -271,49 +413,53 @@ const VueSimulator = defineComponent({
       };
     };
 
-    return () => h("section", { class: "simulator", "aria-label": "Симулятор загрузки веб-страницы" }, [
+    return () => h("section", { class: "simulator", "aria-label": text.simulatorLabel }, [
       h("aside", { class: "control-panel" }, [
-        h("div", { class: "panel-kicker" }, [h("span", "Параметры"), h("span", mode.value === "auto" ? "AUTO" : "MANUAL")]),
-        h("label", { class: "field-label", for: "sim-url" }, "Адрес сайта"),
+        h("div", { class: "panel-kicker" }, [h("span", text.parameters), h("span", mode.value === "auto" ? "AUTO" : "MANUAL")]),
+        h("label", { class: "field-label", for: "sim-url" }, text.websiteAddress),
         h("div", { class: "url-field" }, [
           h("span", { class: "lock-glyph", "aria-hidden": "true" }, secure.value ? "◆" : "◇"),
           h("input", {
             id: "sim-url", value: url.value, disabled: running.value, inputmode: "url", spellcheck: false,
             onInput: (event: Event) => url.value = (event.target as HTMLInputElement).value,
-            onKeydown: (event: KeyboardEvent) => { if (event.key === "Enter") mode.value === "auto" ? run() : nextStep(); },
+            onKeydown: (event: KeyboardEvent) => {
+              if (event.key !== "Enter") return;
+              if (mode.value === "auto") run();
+              else nextStep();
+            },
           }),
         ]),
-        h("div", { class: "mode-control", role: "group", "aria-label": "Режим прохождения" }, [
-          h("button", { type: "button", class: mode.value === "auto" ? "is-selected" : "", "aria-pressed": mode.value === "auto", onClick: () => setMode("auto") }, "Авто"),
-          h("button", { type: "button", class: mode.value === "manual" ? "is-selected" : "", "aria-pressed": mode.value === "manual", onClick: () => setMode("manual") }, "Вручную"),
+        h("div", { class: "mode-control", role: "group", "aria-label": text.modeLabel }, [
+          h("button", { type: "button", class: mode.value === "auto" ? "is-selected" : "", "aria-pressed": mode.value === "auto", onClick: () => setMode("auto") }, text.auto),
+          h("button", { type: "button", class: mode.value === "manual" ? "is-selected" : "", "aria-pressed": mode.value === "manual", onClick: () => setMode("manual") }, text.manual),
         ]),
         h("div", { class: "control-divider" }),
         h("div", { class: "control-row" }, [
-          h("div", [h("strong", "DNS-кеш"), h("small", cache.value ? "IP уже известен" : "Полный поиск")]),
+          h("div", [h("strong", text.dnsCache), h("small", cache.value ? text.ipKnown : text.fullLookup)]),
           h("button", {
-            type: "button", class: ["switch", cache.value && "is-on"], role: "switch", "aria-label": "DNS-кеш", "aria-checked": cache.value,
+            type: "button", class: ["switch", cache.value && "is-on"], role: "switch", "aria-label": text.dnsCache, "aria-checked": cache.value,
             disabled: running.value, onClick: () => { cache.value = !cache.value; reset(); },
           }, h("span")),
         ]),
         mode.value === "auto" ? [
           h("div", { class: "control-divider" }),
-          h("label", { class: "range-head", for: "sim-speed" }, [h("span", "Темп показа"), h("strong", `${speed.value.toLocaleString("ru-RU")}×`)]),
+          h("label", { class: "range-head", for: "sim-speed" }, [h("span", text.pace), h("strong", `${speed.value.toLocaleString(locale === "ru" ? "ru-RU" : "en-US")}×`)]),
           h("input", {
             id: "sim-speed", class: "range", type: "range", min: 0.5, max: 1.25, step: 0.25, value: speed.value,
             onInput: (event: Event) => speed.value = Number((event.target as HTMLInputElement).value),
           }),
-          h("div", { class: "range-labels", "aria-hidden": "true" }, [h("span", "подробно"), h("span", "быстрее")]),
+          h("div", { class: "range-labels", "aria-hidden": "true" }, [h("span", text.detailed), h("span", text.faster)]),
         ] : null,
         mode.value === "auto"
           ? h("button", { type: "button", class: "run-button", disabled: running.value, onClick: run }, [
               h("span", { class: running.value ? "spinner" : "run-icon", "aria-hidden": "true" }, running.value ? "" : "→"),
-              running.value ? "Показываем путь" : done.value ? "Запустить снова" : "Начать показ",
+              running.value ? text.showing : done.value ? text.runAgain : text.start,
             ])
           : h("div", { class: "manual-controls" }, [
-              h("button", { type: "button", class: "manual-button", disabled: current.value < 0, onClick: previousStep }, "← Назад"),
-              h("button", { type: "button", class: "manual-button is-primary", onClick: nextStep }, done.value ? "Сначала ↺" : "Далее →"),
+              h("button", { type: "button", class: "manual-button", disabled: current.value < 0, onClick: previousStep }, text.back),
+              h("button", { type: "button", class: "manual-button is-primary", onClick: nextStep }, done.value ? text.restart : text.next),
             ]),
-        h("p", { class: "estimate" }, mode.value === "auto" ? `Полный путь: ≈ ${totalEstimate.value} мс` : `${Math.min(current.value + 1, route.value.length)} из ${route.value.length} подшагов`),
+        h("p", { class: "estimate" }, mode.value === "auto" ? `${text.fullPath}: ≈ ${totalEstimate.value} ${text.milliseconds}` : `${Math.min(current.value + 1, route.value.length)} ${text.substepsOf} ${route.value.length} ${text.substeps}`),
       ]),
 
       h("div", { class: "simulation-stage" }, [
@@ -322,14 +468,14 @@ const VueSimulator = defineComponent({
           h("div", { class: "protocol-chip" }, [h("span", { class: secure.value ? "chip-dot secure" : "chip-dot" }), secure.value ? "HTTPS · 443" : "HTTP · 80"]),
         ]),
 
-        h("div", { ref: flowRef, class: "flow", role: "list", "aria-label": "Этапы загрузки" }, stages.map((stage, index) =>
+        h("div", { ref: flowRef, class: "flow", role: "list", "aria-label": text.loadingStages }, stages.map((stage, index) =>
           h("div", { class: stageClass(stage, index), role: "listitem", key: stage.key }, [
             h("div", { class: "flow-node" }, [
               h("button", {
                 type: "button",
                 class: "flow-circle",
                 disabled: stage.key === "tls" && !secure.value,
-                "aria-label": `Перейти к этапу «${stage.title}»`,
+                "aria-label": `${text.goStage}: ${stage.title}`,
                 "aria-current": index === activeStageIndex.value && !done.value ? "step" : undefined,
                 onClick: () => jumpToStage(index),
               }, stage.short),
@@ -342,7 +488,7 @@ const VueSimulator = defineComponent({
         h("div", { class: "progress-rail", "aria-hidden": "true" }, h("span", { style: { width: `${progress.value}%` } })),
 
         h("div", { class: ["event-console", done.value && "is-done"] }, [
-          activeStage.value ? h("div", { ref: substepTrackRef, class: "substep-track", "aria-label": `Подшаги этапа ${activeStage.value.title}` },
+          activeStage.value ? h("div", { ref: substepTrackRef, class: "substep-track", "aria-label": `${text.stageSubsteps} ${activeStage.value.title}` },
             activeStageSubsteps.value.map((substep, index) => h("div", {
               class: ["substep-item", index === activeUnit.value?.substepIndex && "is-active", index < (activeUnit.value?.substepIndex ?? -1) && "is-complete"],
               key: substep.label,
@@ -350,28 +496,28 @@ const VueSimulator = defineComponent({
               h("button", {
                 type: "button",
                 class: "substep-circle",
-                "aria-label": `Перейти к подшагу «${substep.label}»`,
+                "aria-label": `${text.goSubstep}: ${substep.label}`,
                 "aria-current": index === activeUnit.value?.substepIndex ? "step" : undefined,
                 onClick: () => jumpToSubstep(activeStageIndex.value, index),
               }, String(index + 1)),
               h("small", { class: "substep-label" }, substep.label),
-              h("span", { class: "substep-why" }, substepPurpose[substep.label] ?? "Обеспечивает следующий этап"),
+              h("span", { class: "substep-why" }, substepPurpose[substep.label] ?? text.defaultPurpose),
             ]))
-          ) : h("div", { class: "substep-placeholder" }, "Подшаги появятся после запуска"),
+          ) : h("div", { class: "substep-placeholder" }, text.substepsPlaceholder),
           h("div", { class: "event-content" }, [
             h("div", { class: "event-copy" }, [
-              h("span", { class: "event-actor" }, done.value ? "Готово" : activeStage.value?.title ?? "Браузер"),
-              h("h2", done.value ? "Страница готова к работе" : activeUnit.value?.label ?? "Введите адрес и начните путь"),
-              h("p", done.value ? "Пиксели отрисованы, обработчики событий активны — пользователь может взаимодействовать со страницей." : activeUnit.value?.detail ?? "Вы увидите не только большие этапы, но и каждый внутренний подшаг."),
+              h("span", { class: "event-actor" }, done.value ? text.ready : activeStage.value?.title ?? text.browser),
+              h("h2", done.value ? text.pageReady : activeUnit.value?.label ?? text.enterAddress),
+              h("p", done.value ? text.doneDetail : activeUnit.value?.detail ?? text.introDetail),
             ]),
             h("code", { class: "signal-line" }, done.value ? "load → interactive" : activeUnit.value?.signal ?? "awaiting input…"),
           ]),
         ]),
 
         h("div", { class: "metric-row", "aria-live": "polite" }, [
-          h("div", [h("span", "Условное время"), h("strong", [String(elapsed.value), " ", h("small", "мс")])]),
-          h("div", [h("span", "Сетевые обмены"), h("strong", String(exchanges.value))]),
-          h("div", [h("span", "Текущий узел"), h("strong", done.value ? "Интерактив" : activeStage.value?.actor ?? "—")]),
+          h("div", [h("span", text.conditionalTime), h("strong", [String(elapsed.value), " ", h("small", text.milliseconds)])]),
+          h("div", [h("span", text.networkExchanges), h("strong", String(exchanges.value))]),
+          h("div", [h("span", text.currentNode), h("strong", done.value ? text.interactive : activeStage.value?.actor ?? "—")]),
         ]),
       ]),
     ]);
