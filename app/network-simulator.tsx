@@ -243,6 +243,72 @@ const englishSubstepPurpose: Record<string, string> = {
   "Interactivity": "Makes the page responsive to input",
 };
 
+const russianTechnicalDetails: Record<string, string> = {
+  "Ввод URL": "Навигация создаёт новый сетевой запрос в контексте текущей вкладки. Браузер также проверяет, является ли ввод URL, поисковым запросом или внутренней схемой.",
+  "Разбор частей": "URL разбирается по правилам WHATWG URL Standard. Схема определяет протокол, host — целевой узел, а path и query формируют адрес ресурса.",
+  "Выбор порта": "Если порт не указан явно, браузер подставляет стандартный порт схемы. Вместе с IP-адресом порт образует конечную точку сокета.",
+  "Кеш браузера": "Записи хранятся в пределах TTL, полученного из DNS-ответа. Актуальная запись позволяет пропустить обращение к системному резолверу.",
+  "Кеш системы": "ОС проверяет локальный кеш резолвера и статические правила файла hosts. Результат возвращается браузеру через системный API разрешения имён.",
+  "Рекурсивный DNS": "Резолвер принимает рекурсивный запрос типа A или AAAA и продолжает поиск от имени клиента. Обычно DNS использует UDP-порт 53, а для больших ответов и отдельных случаев — TCP.",
+  "Root и TLD": "Корневой сервер возвращает ссылку на серверы зоны верхнего уровня, а TLD-сервер — на авторитативные серверы домена. Финального IP-адреса сайта в этих ответах ещё нет.",
+  "Авторитативный DNS": "Авторитативный сервер читает зону домена и возвращает запись A, AAAA или цепочку CNAME. Ответ содержит TTL, который ограничивает срок безопасного кеширования.",
+  "Попадание в кеш": "Сохранённая запись используется, пока её TTL не истёк. Это убирает несколько сетевых обменов и сокращает задержку перед соединением.",
+  "SYN": "TCP-сегмент содержит флаг SYN, начальный sequence number и параметры вроде MSS и window scale. Они запускают согласование надёжного байтового потока.",
+  "SYN-ACK": "Сервер отвечает собственным sequence number и подтверждает номер клиента через ACK. Сетевой стек сервера также резервирует состояние для соединения.",
+  "ACK": "Финальный ACK подтверждает sequence number сервера. После этого обе стороны переходят в состояние ESTABLISHED и могут передавать прикладные данные.",
+  "Client Hello": "Сообщение содержит SNI, ALPN, список cipher suites и key share для TLS 1.3. ALPN позволяет в том же рукопожатии согласовать HTTP/2 или HTTP/1.1.",
+  "Сертификат": "Сервер передаёт цепочку X.509-сертификатов и подпись параметров рукопожатия. Публичный ключ связывает доменное имя с владельцем соответствующего закрытого ключа.",
+  "Проверка": "Браузер строит цепочку до доверенного корневого центра и проверяет подписи, срок действия и SAN домена. Ошибка любой проверки прерывает установку доверенного защищённого соединения.",
+  "Сессионный ключ": "Стороны независимо вычисляют общий секрет из результатов обмена ключами. Из него выводятся симметричные ключи, которыми AEAD-алгоритм защищает конфиденциальность и целостность трафика.",
+  "Метод и путь": "Стартовая строка задаёт HTTP-метод и request target. У GET обычно нет тела, поэтому ресурс определяется через path и query string.",
+  "Заголовки": "Host выбирает виртуальный сервер, Accept описывает допустимые форматы, а Cookie переносит состояние сессии. Заголовки также управляют кешированием и согласованием контента.",
+  "Отправка": "HTTP-данные упаковываются в TLS records, TCP-сегменты и IP-пакеты. Получатель подтверждает байты, а потерянные сегменты TCP передаёт повторно.",
+  "Обработка": "Reverse proxy или веб-сервер сопоставляет host и path с маршрутом приложения. Обработчик может обратиться к кешу, базе данных или внешним сервисам перед формированием результата.",
+  "Статус и заголовки": "Код состояния сообщает класс результата, а Content-Type определяет способ интерпретации тела. Cache-Control, ETag и Set-Cookie управляют кешем и состоянием клиента.",
+  "Тело ответа": "Тело может передаваться с Content-Length, chunked encoding или потоково поверх HTTP/2. До парсинга браузер декодирует Content-Encoding, например gzip или Brotli.",
+  "Парсинг HTML": "Токенизатор превращает байты в теги и текст, постепенно строя DOM. Preload scanner параллельно обнаруживает критические CSS, скрипты и изображения.",
+  "CSS и JavaScript": "CSS может блокировать первый рендер, а обычный синхронный script — дальнейший разбор HTML. Атрибуты defer и async, а также module меняют порядок загрузки и выполнения JavaScript.",
+  "Изображения": "Планировщик выбирает приоритет запросов с учётом видимости и loading=lazy. После загрузки формат декодируется в пиксели и может потребовать повторного расчёта layout.",
+  "DOM": "Каждый элемент, атрибут и текстовый узел становится объектом в дереве документа. Изменения DOM через JavaScript могут инвалидировать стили и геометрию.",
+  "CSSOM": "Парсер применяет каскад, наследование и специфичность к найденным правилам. Итоговые computed styles рассчитываются для элементов, участвующих в отображении.",
+  "Layout": "Движок вычисляет геометрию боксов с учётом обычного потока, flex/grid и размеров viewport. Изменение геометрических свойств может запустить повторный layout.",
+  "Paint": "Команды рисования формируются для фона, текста, границ и эффектов. Композитор объединяет растеризованные слои, часто используя GPU, без полного перерасчёта страницы.",
+  "Интерактивность": "После выполнения нужных скриптов обработчики событий могут принимать ввод пользователя. Метрики вроде INP оценивают задержку между действием и следующим визуальным обновлением.",
+};
+
+const englishTechnicalDetails: Record<string, string> = {
+  "Enter the URL": "Navigation creates a new request in the context of the current tab. The browser also decides whether the input is a URL, a search query, or an internal scheme.",
+  "Parse its parts": "The URL is parsed according to the WHATWG URL Standard. The scheme selects the protocol, the host identifies the destination, and the path and query identify the resource.",
+  "Choose the port": "If no port is written explicitly, the browser supplies the scheme's default. Together with the IP address, the port forms the socket endpoint.",
+  "Browser cache": "Entries are stored only for the TTL supplied by the DNS response. A valid entry lets the browser skip the operating system resolver.",
+  "System cache": "The OS checks its resolver cache and static hosts-file rules. It returns the result through the platform's name-resolution API.",
+  "Recursive DNS": "The resolver accepts a recursive A or AAAA query and continues the lookup on the client's behalf. DNS commonly uses UDP port 53, with TCP used for larger responses and selected cases.",
+  "Root and TLD": "A root server refers the resolver to the top-level-domain servers, and a TLD server refers it to the domain's authoritative servers. These referrals do not yet contain the website's final address.",
+  "Authoritative DNS": "The authoritative server reads the domain zone and returns an A, AAAA, or CNAME chain. The response includes a TTL that limits how long it may be cached.",
+  "Cache hit": "The saved record remains usable until its TTL expires. Reusing it removes several network round trips and shortens connection startup.",
+  "SYN": "The TCP segment carries the SYN flag, an initial sequence number, and options such as MSS and window scaling. These values begin negotiation of a reliable byte stream.",
+  "SYN-ACK": "The server returns its own sequence number and acknowledges the client's number. Its network stack also allocates state for the pending connection.",
+  "ACK": "The final ACK confirms the server's sequence number. Both endpoints enter the ESTABLISHED state and may now exchange application data.",
+  "Client Hello": "The message includes SNI, ALPN, cipher suites, and a TLS 1.3 key share. ALPN can select HTTP/2 or HTTP/1.1 during the same handshake.",
+  "Certificate": "The server sends an X.509 certificate chain and a signature over the handshake parameters. Its public key links the domain name to possession of the corresponding private key.",
+  "Verification": "The browser builds a chain to a trusted root and checks signatures, validity dates, and the domain SAN. Any failed check prevents a trusted secure connection.",
+  "Session key": "Both peers independently derive the same shared secret from the key exchange. Symmetric traffic keys are then derived and used by an AEAD cipher to protect confidentiality and integrity.",
+  "Method and path": "The request line defines the HTTP method and request target. A GET request usually has no body, so the resource is identified by its path and query string.",
+  "Headers": "Host selects the virtual server, Accept describes supported representations, and Cookie carries session state. Headers also control caching and content negotiation.",
+  "Send": "HTTP bytes are wrapped in TLS records, TCP segments, and IP packets. The receiver acknowledges bytes, while TCP retransmits data detected as lost.",
+  "Process": "A reverse proxy or web server maps the host and path to an application route. The handler may query caches, databases, or external services before producing a result.",
+  "Status and headers": "The status code identifies the result class, while Content-Type defines how to interpret the body. Cache-Control, ETag, and Set-Cookie manage caching and client state.",
+  "Response body": "The body may use Content-Length, chunked transfer encoding, or HTTP/2 streaming. The browser decodes Content-Encoding such as gzip or Brotli before parsing the content.",
+  "Parse HTML": "The tokenizer converts incoming bytes into tags and text while incrementally building the DOM. A preload scanner can discover critical CSS, scripts, and images in parallel.",
+  "CSS and JavaScript": "CSS can block first render, while a normal synchronous script can pause HTML parsing. defer, async, and module change when JavaScript downloads and executes.",
+  "Images": "The scheduler prioritizes requests using visibility and loading=lazy hints. After download, the format is decoded into pixels and may trigger another layout calculation.",
+  "DOM": "Every element, attribute, and text node becomes an object in the document tree. JavaScript DOM changes can invalidate computed styles and geometry.",
+  "CSSOM": "The parser applies cascade, inheritance, and specificity to the collected rules. Computed styles are resolved for elements that participate in rendering.",
+  "Layout": "The engine calculates box geometry using normal flow, flex/grid rules, and the viewport size. Changing geometric properties can trigger another layout pass.",
+  "Paint": "Drawing commands are produced for backgrounds, text, borders, and effects. The compositor combines rasterized layers, often on the GPU, without rebuilding the whole page.",
+  "Interactivity": "Once required scripts have executed, event handlers can process user input. Metrics such as INP estimate the delay between an interaction and the next visual update.",
+};
+
 const uiCopy: Record<Locale, Record<string, string>> = {
   ru: {
     simulatorLabel: "Симулятор загрузки веб-страницы", parameters: "Параметры", websiteAddress: "Адрес сайта", stepMode: "ПОШАГОВО",
@@ -251,7 +317,9 @@ const uiCopy: Record<Locale, Record<string, string>> = {
     stageSubsteps: "Подшаги этапа", goSubstep: "Перейти к подшагу", defaultPurpose: "Обеспечивает следующий этап",
     substepsPlaceholder: "Подшаги появятся после запуска", ready: "Готово", browser: "Браузер", pageReady: "Страница готова к работе",
     enterAddress: "Введите адрес и начните путь", doneDetail: "Пиксели отрисованы, обработчики событий активны — пользователь может взаимодействовать со страницей.",
-    introDetail: "Вы увидите не только большие этапы, но и каждый внутренний подшаг.", conditionalTime: "Условное время",
+    doneTechnical: "К этому моменту критические ресурсы обработаны, а главный поток способен принимать пользовательский ввод. Фоновая загрузка, lazy-ресурсы и последующие JavaScript-задачи при этом могут продолжаться.",
+    introDetail: "Вы увидите не только большие этапы, но и каждый внутренний подшаг.",
+    introTechnical: "На каждом подшаге ниже появятся конкретные протоколы, структуры данных и сетевые обмены. Значения времени условные и нужны для сравнения этапов, а не для измерения реального сайта.", conditionalTime: "Условное время",
     networkExchanges: "Сетевые обмены", currentNode: "Текущий узел", interactive: "Интерактив", milliseconds: "мс",
   },
   en: {
@@ -261,7 +329,9 @@ const uiCopy: Record<Locale, Record<string, string>> = {
     stageSubsteps: "Substeps for", goSubstep: "Go to substep", defaultPurpose: "Enables the next stage",
     substepsPlaceholder: "Substeps will appear after you start", ready: "Ready", browser: "Browser", pageReady: "The page is ready",
     enterAddress: "Enter an address and start the journey", doneDetail: "Pixels are painted and event handlers are active, so the user can interact with the page.",
-    introDetail: "You will see every major stage and each of its internal substeps.", conditionalTime: "Illustrative time",
+    doneTechnical: "At this point, critical resources have been processed and the main thread can accept user input. Background loading, lazy resources, and later JavaScript tasks may still continue.",
+    introDetail: "You will see every major stage and each of its internal substeps.",
+    introTechnical: "Each substep below names the concrete protocols, data structures, and network exchanges involved. Timing values are illustrative comparisons, not measurements of a real website.", conditionalTime: "Illustrative time",
     networkExchanges: "Network exchanges", currentNode: "Current node", interactive: "Interactive", milliseconds: "ms",
   },
 };
@@ -274,6 +344,7 @@ const VueSimulator = defineComponent({
     const stages = locale === "ru" ? russianStages : englishStages;
     const cachedDnsSubsteps = locale === "ru" ? russianCachedDnsSubsteps : englishCachedDnsSubsteps;
     const substepPurpose = locale === "ru" ? russianSubstepPurpose : englishSubstepPurpose;
+    const technicalDetails = locale === "ru" ? russianTechnicalDetails : englishTechnicalDetails;
     const url = ref("https://example.com");
     const cache = ref(false);
     const current = ref(-1);
@@ -445,7 +516,12 @@ const VueSimulator = defineComponent({
             h("div", { class: "event-copy" }, [
               h("span", { class: "event-actor" }, done.value ? text.ready : activeStage.value?.title ?? text.browser),
               h("h2", done.value ? text.pageReady : activeUnit.value?.label ?? text.enterAddress),
-              h("p", done.value ? text.doneDetail : activeUnit.value?.detail ?? text.introDetail),
+              h("p", { class: "event-summary" }, done.value ? text.doneDetail : activeUnit.value?.detail ?? text.introDetail),
+              h("p", { class: "event-technical" }, done.value
+                ? text.doneTechnical
+                : activeUnit.value
+                  ? technicalDetails[activeUnit.value.label]
+                  : text.introTechnical),
             ]),
             h("code", { class: "signal-line" }, done.value ? "load → interactive" : activeUnit.value?.signal ?? "awaiting input…"),
           ]),
