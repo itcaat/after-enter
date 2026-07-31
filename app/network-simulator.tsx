@@ -245,11 +245,9 @@ const englishSubstepPurpose: Record<string, string> = {
 
 const uiCopy: Record<Locale, Record<string, string>> = {
   ru: {
-    simulatorLabel: "Симулятор загрузки веб-страницы", parameters: "Параметры", websiteAddress: "Адрес сайта",
-    modeLabel: "Режим прохождения", auto: "Авто", manual: "Вручную", dnsCache: "DNS-кеш", ipKnown: "IP уже известен",
-    fullLookup: "Полный поиск", pace: "Темп показа", detailed: "подробно", faster: "быстрее", showing: "Показываем путь",
-    runAgain: "Запустить снова", start: "Начать показ", back: "← Назад", restart: "Сначала ↺", next: "Далее →",
-    fullPath: "Полный путь", substepsOf: "из", substeps: "подшагов", loadingStages: "Этапы загрузки", goStage: "Перейти к этапу",
+    simulatorLabel: "Симулятор загрузки веб-страницы", parameters: "Параметры", websiteAddress: "Адрес сайта", stepMode: "ПОШАГОВО",
+    dnsCache: "DNS-кеш", ipKnown: "IP уже известен", fullLookup: "Полный поиск", back: "← Назад",
+    restart: "Сначала ↺", next: "Далее →", substepsOf: "из", substeps: "подшагов", loadingStages: "Этапы загрузки", goStage: "Перейти к этапу",
     stageSubsteps: "Подшаги этапа", goSubstep: "Перейти к подшагу", defaultPurpose: "Обеспечивает следующий этап",
     substepsPlaceholder: "Подшаги появятся после запуска", ready: "Готово", browser: "Браузер", pageReady: "Страница готова к работе",
     enterAddress: "Введите адрес и начните путь", doneDetail: "Пиксели отрисованы, обработчики событий активны — пользователь может взаимодействовать со страницей.",
@@ -257,11 +255,9 @@ const uiCopy: Record<Locale, Record<string, string>> = {
     networkExchanges: "Сетевые обмены", currentNode: "Текущий узел", interactive: "Интерактив", milliseconds: "мс",
   },
   en: {
-    simulatorLabel: "Web page loading simulator", parameters: "Parameters", websiteAddress: "Website address",
-    modeLabel: "Playback mode", auto: "Auto", manual: "Manual", dnsCache: "DNS cache", ipKnown: "IP already known",
-    fullLookup: "Full lookup", pace: "Playback speed", detailed: "detailed", faster: "faster", showing: "Showing the route",
-    runAgain: "Run again", start: "Start simulation", back: "← Back", restart: "Start over ↺", next: "Next →",
-    fullPath: "Full route", substepsOf: "of", substeps: "substeps", loadingStages: "Loading stages", goStage: "Go to stage",
+    simulatorLabel: "Web page loading simulator", parameters: "Parameters", websiteAddress: "Website address", stepMode: "STEP BY STEP",
+    dnsCache: "DNS cache", ipKnown: "IP already known", fullLookup: "Full lookup", back: "← Back",
+    restart: "Start over ↺", next: "Next →", substepsOf: "of", substeps: "substeps", loadingStages: "Loading stages", goStage: "Go to stage",
     stageSubsteps: "Substeps for", goSubstep: "Go to substep", defaultPurpose: "Enables the next stage",
     substepsPlaceholder: "Substeps will appear after you start", ready: "Ready", browser: "Browser", pageReady: "The page is ready",
     enterAddress: "Enter an address and start the journey", doneDetail: "Pixels are painted and event handlers are active, so the user can interact with the page.",
@@ -280,12 +276,8 @@ const VueSimulator = defineComponent({
     const substepPurpose = locale === "ru" ? russianSubstepPurpose : englishSubstepPurpose;
     const url = ref("https://example.com");
     const cache = ref(false);
-    const speed = ref(0.75);
-    const mode = ref<"auto" | "manual">("auto");
     const current = ref(-1);
     const done = ref(false);
-    const running = ref(false);
-    const token = ref(0);
     const flowRef = ref<HTMLElement | null>(null);
     const substepTrackRef = ref<HTMLElement | null>(null);
 
@@ -306,10 +298,6 @@ const VueSimulator = defineComponent({
     const progress = computed(() => done.value ? 100 : current.value < 0 ? 0 : ((current.value + 1) / route.value.length) * 100);
     const elapsed = computed(() => route.value.slice(0, done.value ? route.value.length : current.value + 1).reduce((sum, unit) => sum + unit.ms, 0));
     const exchanges = computed(() => route.value.slice(0, done.value ? route.value.length : current.value + 1).reduce((sum, unit) => sum + unit.exchanges, 0));
-    const totalEstimate = computed(() => route.value.reduce((sum, unit) => sum + unit.ms, 0));
-
-    const pause = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms));
-
     function centerActive(container: HTMLElement | null, selector: string) {
       const target = container?.querySelector<HTMLElement>(selector);
       if (!container || !target) return;
@@ -334,39 +322,12 @@ const VueSimulator = defineComponent({
     }
 
     function reset() {
-      token.value += 1;
       current.value = -1;
       done.value = false;
-      running.value = false;
-    }
-
-    function setMode(nextMode: "auto" | "manual") {
-      if (mode.value === nextMode) return;
-      mode.value = nextMode;
-      reset();
-    }
-
-    async function run() {
-      normalizeUrl();
-      const runId = ++token.value;
-      current.value = -1;
-      done.value = false;
-      running.value = true;
-      await nextTick();
-
-      for (let index = 0; index < route.value.length; index += 1) {
-        if (runId !== token.value || mode.value !== "auto") return;
-        current.value = index;
-        await pause(Math.max(720, route.value[index].ms * 3.2) / speed.value);
-      }
-      if (runId !== token.value) return;
-      done.value = true;
-      running.value = false;
     }
 
     function nextStep() {
       normalizeUrl();
-      running.value = false;
       if (done.value) current.value = -1;
       done.value = false;
       if (current.value < route.value.length - 1) current.value += 1;
@@ -374,8 +335,6 @@ const VueSimulator = defineComponent({
     }
 
     function previousStep() {
-      token.value += 1;
-      running.value = false;
       if (done.value) {
         done.value = false;
         current.value = route.value.length - 1;
@@ -387,9 +346,6 @@ const VueSimulator = defineComponent({
     function jumpToRouteIndex(routeIndex: number) {
       if (routeIndex < 0) return;
       normalizeUrl();
-      token.value += 1;
-      mode.value = "manual";
-      running.value = false;
       done.value = false;
       current.value = routeIndex;
     }
@@ -415,51 +371,32 @@ const VueSimulator = defineComponent({
 
     return () => h("section", { class: "simulator", "aria-label": text.simulatorLabel }, [
       h("aside", { class: "control-panel" }, [
-        h("div", { class: "panel-kicker" }, [h("span", text.parameters), h("span", mode.value === "auto" ? "AUTO" : "MANUAL")]),
+        h("div", { class: "panel-kicker" }, [h("span", text.parameters), h("span", text.stepMode)]),
         h("label", { class: "field-label", for: "sim-url" }, text.websiteAddress),
         h("div", { class: "url-field" }, [
           h("span", { class: "lock-glyph", "aria-hidden": "true" }, secure.value ? "◆" : "◇"),
           h("input", {
-            id: "sim-url", value: url.value, disabled: running.value, inputmode: "url", spellcheck: false,
+            id: "sim-url", value: url.value, inputmode: "url", spellcheck: false,
             onInput: (event: Event) => url.value = (event.target as HTMLInputElement).value,
             onKeydown: (event: KeyboardEvent) => {
               if (event.key !== "Enter") return;
-              if (mode.value === "auto") run();
-              else nextStep();
+              nextStep();
             },
           }),
-        ]),
-        h("div", { class: "mode-control", role: "group", "aria-label": text.modeLabel }, [
-          h("button", { type: "button", class: mode.value === "auto" ? "is-selected" : "", "aria-pressed": mode.value === "auto", onClick: () => setMode("auto") }, text.auto),
-          h("button", { type: "button", class: mode.value === "manual" ? "is-selected" : "", "aria-pressed": mode.value === "manual", onClick: () => setMode("manual") }, text.manual),
         ]),
         h("div", { class: "control-divider" }),
         h("div", { class: "control-row" }, [
           h("div", [h("strong", text.dnsCache), h("small", cache.value ? text.ipKnown : text.fullLookup)]),
           h("button", {
             type: "button", class: ["switch", cache.value && "is-on"], role: "switch", "aria-label": text.dnsCache, "aria-checked": cache.value,
-            disabled: running.value, onClick: () => { cache.value = !cache.value; reset(); },
+            onClick: () => { cache.value = !cache.value; reset(); },
           }, h("span")),
         ]),
-        mode.value === "auto" ? [
-          h("div", { class: "control-divider" }),
-          h("label", { class: "range-head", for: "sim-speed" }, [h("span", text.pace), h("strong", `${speed.value.toLocaleString(locale === "ru" ? "ru-RU" : "en-US")}×`)]),
-          h("input", {
-            id: "sim-speed", class: "range", type: "range", min: 0.5, max: 1.25, step: 0.25, value: speed.value,
-            onInput: (event: Event) => speed.value = Number((event.target as HTMLInputElement).value),
-          }),
-          h("div", { class: "range-labels", "aria-hidden": "true" }, [h("span", text.detailed), h("span", text.faster)]),
-        ] : null,
-        mode.value === "auto"
-          ? h("button", { type: "button", class: "run-button", disabled: running.value, onClick: run }, [
-              h("span", { class: running.value ? "spinner" : "run-icon", "aria-hidden": "true" }, running.value ? "" : "→"),
-              running.value ? text.showing : done.value ? text.runAgain : text.start,
-            ])
-          : h("div", { class: "manual-controls" }, [
-              h("button", { type: "button", class: "manual-button", disabled: current.value < 0, onClick: previousStep }, text.back),
-              h("button", { type: "button", class: "manual-button is-primary", onClick: nextStep }, done.value ? text.restart : text.next),
-            ]),
-        h("p", { class: "estimate" }, mode.value === "auto" ? `${text.fullPath}: ≈ ${totalEstimate.value} ${text.milliseconds}` : `${Math.min(current.value + 1, route.value.length)} ${text.substepsOf} ${route.value.length} ${text.substeps}`),
+        h("div", { class: "manual-controls" }, [
+          h("button", { type: "button", class: "manual-button", disabled: current.value < 0, onClick: previousStep }, text.back),
+          h("button", { type: "button", class: "manual-button is-primary", onClick: nextStep }, done.value ? text.restart : text.next),
+        ]),
+        h("p", { class: "estimate" }, `${Math.min(current.value + 1, route.value.length)} ${text.substepsOf} ${route.value.length} ${text.substeps}`),
       ]),
 
       h("div", { class: "simulation-stage" }, [
