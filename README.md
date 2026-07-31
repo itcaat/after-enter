@@ -1,98 +1,102 @@
-# vinext-starter
+# After Enter
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Интерактивный симулятор, который показывает, что происходит между нажатием `Enter` в адресной строке и появлением готовой веб-страницы на экране.
 
-## Prerequisites
+[Открыть симулятор →](https://itcaat.github.io/after-enter/)
 
-- Node.js `>=22.13.0`
+![After Enter — интерактивный путь веб-запроса](public/og.png)
 
-## Quick Start
+## Что это за сайт
+
+After Enter превращает скрытый путь веб-запроса в последовательную визуальную историю. Вместо одной абстрактной схемы пользователь вручную проходит весь процесс: браузер разбирает адрес, ищет IP, устанавливает соединение, договаривается о шифровании, отправляет HTTP-запрос и превращает полученный документ в пиксели.
+
+Каждый этап разделён на кликабельные подшаги. Сначала показывается короткое объяснение простыми словами, а ниже — технические подробности о протоколах, структурах данных и сетевых обменах.
+
+## Для кого
+
+- Для начинающих разработчиков, которые хотят увидеть связь между DNS, TCP, TLS, HTTP и рендерингом.
+- Для подготовки к техническому собеседованию и вопросу «что происходит после ввода URL?».
+- Для преподавателей и наставников как наглядное дополнение к объяснению работы веба.
+- Для практикующих разработчиков, которым нужно быстро освежить всю последовательность событий.
+
+## Как пользоваться
+
+1. Введите адрес сайта или оставьте демонстрационный `https://example.com`.
+2. Выберите, находится ли DNS-запись в кеше.
+3. Нажимайте «Далее» и «Назад», чтобы проходить процесс в своём темпе.
+4. Нажмите на любой большой этап или маленький кружок подшага, чтобы сразу перейти к нему.
+5. Сравнивайте условное время, количество сетевых обменов и текущий узел процесса.
+
+## Что показывает симулятор
+
+- обработку нажатия `Enter`, разбор URL, HSTS и Punycode;
+- кеши браузера и ОС, рекурсивный и авторитативный DNS;
+- создание сокета, ARP, шлюз, маршрутизацию и TCP handshake;
+- TLS 1.3, сертификат, проверку доверия и сессионные ключи;
+- формирование HTTP-запроса и обработку на сервере;
+- статусы ответа, ETag, `304 Not Modified` и поток HTML;
+- загрузку CSS, JavaScript, шрифтов и изображений;
+- DOM, CSSOM, Render Tree, Layout, Paint, растеризацию и композицию;
+- момент готовности страницы к пользовательскому вводу.
+
+## Особенности
+
+- Полностью ручной режим без автоматической прокрутки шагов.
+- Кликабельная навигация по этапам и подшагам.
+- Краткое продуктовое и расширенное техническое объяснение каждого действия.
+- Отдельная ветка для попадания DNS-записи в кеш.
+- Автоматический русский интерфейс для браузеров с языком `ru`; для остальных — английский.
+- Адаптивная вёрстка для компьютеров и мобильных устройств.
+
+## Источники
+
+Содержание симулятора основано на материалах статей:
+
+- [«Что происходит после ввода адреса в браузере» — ГНИВЦ, 2024](https://habr.com/ru/companies/gnivc/articles/861432/)
+- [«Что на самом деле происходит, когда пользователь вбивает в браузер адрес google.com» — HTML Academy, 2015](https://habr.com/ru/companies/htmlacademy/articles/254825/)
+
+Устаревшие примеры из ранних материалов адаптированы к современному стеку: TLS 1.3, актуальным механизмам кеширования и современной последовательности рендеринга.
+
+## Технические детали
+
+### Стек
+
+- React 19 и Next.js 16 отвечают за оболочку страницы и серверный рендеринг.
+- Vue 3 управляет состоянием и интерактивной частью симулятора.
+- TypeScript описывает этапы, подшаги и локализованный контент.
+- vinext и Vite формируют сборку для Cloudflare Workers-compatible окружения.
+- GitHub Actions создаёт статическую версию для GitHub Pages.
+
+### Структура проекта
+
+```text
+app/
+├── localized-shell.tsx      # локализованная оболочка страницы
+├── network-simulator.tsx    # данные, логика и Vue-интерфейс симулятора
+├── i18n.ts                  # определение языка браузера
+├── globals.css              # визуальная система и адаптивная вёрстка
+├── layout.tsx               # метаданные и шрифты
+└── page.tsx                 # входная страница
+```
+
+### Локальный запуск
+
+Требуется Node.js `>=22.13.0`.
 
 ```bash
 npm install
 npm run dev
+```
+
+### Проверка и сборка
+
+```bash
+npm run lint
+npm test
 npm run build
+npm run build:pages
 ```
 
-This starter does not use `wrangler.jsonc`.
+### Публикация
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
-```
-
-## Optional Dispatch-Owned ChatGPT Sign-In
-
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
-
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+При отправке изменений в ветку `main` workflow `.github/workflows/pages.yml` собирает статический сайт и публикует его в GitHub Pages. Проект также поддерживает сборку и публикацию через OpenAI Sites.
