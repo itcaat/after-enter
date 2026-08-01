@@ -4,18 +4,16 @@ import { useEffect, useSyncExternalStore } from "react";
 import { detectBrowserLocale, type Locale } from "./i18n";
 import { NetworkSimulator } from "./network-simulator";
 
-const shellCopy: Record<Locale, { title: string; description: string; brand: string; source: string }> = {
+const shellCopy: Record<Locale, { title: string; description: string; brand: string }> = {
   ru: {
     title: "Что происходит после нажатия Enter в браузере?",
     description: "Интерактивный путь через ОС, DNS, интернет, CDN, backend и рендеринг страницы.",
     brand: "Что происходит после нажатия",
-    source: "Источники на Хабре",
   },
   en: {
     title: "What happens after you press Enter in the browser?",
     description: "An interactive path across the OS, DNS, internet, CDN, backend, and page rendering.",
     brand: "What happens after you press",
-    source: "Sources on Habr",
   },
 };
 
@@ -41,12 +39,6 @@ export function LocalizedShell() {
       </header>
 
       <NetworkSimulator />
-
-      <footer className="site-footer">
-        <span>{copy.source}:</span>
-        <a href="https://habr.com/ru/companies/gnivc/articles/861432/" target="_blank" rel="noreferrer">2024 ↗</a>
-        <a href="https://habr.com/ru/companies/htmlacademy/articles/254825/" target="_blank" rel="noreferrer">2015 ↗</a>
-      </footer>
     </main>
   );
 }

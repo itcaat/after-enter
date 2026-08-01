@@ -23,9 +23,8 @@ test("server-renders the After Enter product shell", async () => {
   assert.match(html, /<title>What happens after you press Enter in the browser\?<\/title>/i);
   assert.match(html, /What happens after you press/);
   assert.match(html, /class="vue-mount"/);
-  assert.match(html, /Sources on Habr/);
-  assert.match(html, /companies\/gnivc\/articles\/861432/);
-  assert.match(html, /companies\/htmlacademy\/articles\/254825/);
+  assert.doesNotMatch(html, /Sources on Habr|Источники на Хабре/);
+  assert.doesNotMatch(html, /companies\/gnivc\/articles\/861432|companies\/htmlacademy\/articles\/254825/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Starter Project/i);
 });
 
