@@ -39,14 +39,6 @@ a { color: inherit; }
 .vue-mount { min-height: 650px; }
 .simulator { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: 650px; background: var(--panel); color: var(--paper); overflow: hidden; }
 .control-panel { display: flex; flex-direction: column; min-width: 0; padding: 28px; border-right: 1px solid var(--line); background: #131814; }
-.panel-kicker { display: flex; justify-content: space-between; margin-bottom: 52px; color: var(--muted); font: 500 10px/1 var(--font-plex-mono), monospace; letter-spacing: .14em; text-transform: uppercase; }
-.panel-kicker span:last-child { color: var(--acid); }
-.field-label { color: var(--muted); font: 500 10px/1.2 var(--font-plex-mono), monospace; letter-spacing: .09em; text-transform: uppercase; }
-.url-field { display: flex; align-items: center; gap: 9px; margin-top: 12px; padding: 0 13px; background: var(--panel-soft); border: 1px solid var(--line); }
-.lock-glyph { color: var(--acid); font-size: 10px; }
-.url-field input { width: 100%; height: 48px; padding: 0; color: var(--paper); background: transparent; border: 0; outline: none; font: 400 13px/1 var(--font-plex-mono), monospace; }
-.url-field:focus-within { border-color: var(--acid); }
-.control-divider { height: 1px; margin: 25px 0; background: var(--line); }
 .control-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .control-row strong { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 500; }
 .control-row small { display: block; color: var(--muted); font: 400 10px/1.2 var(--font-plex-mono), monospace; }
@@ -138,7 +130,6 @@ a { color: inherit; }
   .brand { font-size: clamp(17px, 5vw, 24px); }
   .simulator { display: block; }
   .control-panel { border-right: 0; border-bottom: 1px solid var(--line); }
-  .panel-kicker { margin-bottom: 28px; }
   .simulation-stage { min-height: 650px; }
   .event-content { grid-template-columns: 1fr; }
   .event-actor { margin-bottom: 20px; }

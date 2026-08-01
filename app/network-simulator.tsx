@@ -977,24 +977,24 @@ const englishTechnicalDetails: Record<string, string> = {
 
 const uiCopy: Record<Locale, Record<string, string>> = {
   ru: {
-    simulatorLabel: "Симулятор загрузки веб-страницы", parameters: "Параметры", websiteAddress: "Адрес сайта", stepMode: "ПОШАГОВО",
+    simulatorLabel: "Симулятор загрузки веб-страницы",
     dnsCache: "DNS-кеш", ipKnown: "IP уже известен", fullLookup: "Полный поиск", back: "← Назад",
     restart: "Сначала ↺", next: "Далее →", substepsOf: "из", substeps: "подшагов", loadingStages: "Этапы загрузки", goStage: "Перейти к этапу",
     stageSubsteps: "Подшаги этапа", goSubstep: "Перейти к подшагу", defaultPurpose: "Обеспечивает следующий этап",
     substepsPlaceholder: "Подшаги появятся после запуска", ready: "Готово", browser: "Браузер", pageReady: "Страница готова к работе",
-    enterAddress: "Введите адрес и начните путь", doneDetail: "Пиксели отрисованы, обработчики событий активны — пользователь может взаимодействовать со страницей.",
+    enterAddress: "Нажмите «Далее», чтобы начать путь", doneDetail: "Пиксели отрисованы, обработчики событий активны — пользователь может взаимодействовать со страницей.",
     doneTechnical: "К этому моменту критические ресурсы обработаны, а главный поток способен принимать пользовательский ввод. Фоновая загрузка, lazy-ресурсы и последующие JavaScript-задачи при этом могут продолжаться.",
     introDetail: "Вы увидите не только большие этапы, но и каждый внутренний подшаг.",
     introTechnical: "На каждом подшаге ниже появятся конкретные протоколы, структуры данных и сетевые обмены. Некоторые механизмы альтернативны друг другу или пропускаются благодаря кешу; время условное и служит только для сравнения.", conditionalTime: "Условное время",
     networkExchanges: "Сетевые обмены", currentNode: "Текущий узел", interactive: "Интерактив", milliseconds: "мс",
   },
   en: {
-    simulatorLabel: "Web page loading simulator", parameters: "Parameters", websiteAddress: "Website address", stepMode: "STEP BY STEP",
+    simulatorLabel: "Web page loading simulator",
     dnsCache: "DNS cache", ipKnown: "IP already known", fullLookup: "Full lookup", back: "← Back",
     restart: "Start over ↺", next: "Next →", substepsOf: "of", substeps: "substeps", loadingStages: "Loading stages", goStage: "Go to stage",
     stageSubsteps: "Substeps for", goSubstep: "Go to substep", defaultPurpose: "Enables the next stage",
     substepsPlaceholder: "Substeps will appear after you start", ready: "Ready", browser: "Browser", pageReady: "The page is ready",
-    enterAddress: "Enter an address and start the journey", doneDetail: "Pixels are painted and event handlers are active, so the user can interact with the page.",
+    enterAddress: "Press Next to start the journey", doneDetail: "Pixels are painted and event handlers are active, so the user can interact with the page.",
     doneTechnical: "At this point, critical resources have been processed and the main thread can accept user input. Background loading, lazy resources, and later JavaScript tasks may still continue.",
     introDetail: "You will see every major stage and each of its internal substeps.",
     introTechnical: "Each substep names concrete protocols, data structures, and network exchanges. Some mechanisms are alternatives or are skipped on a cache hit; timing is illustrative and only supports comparison.", conditionalTime: "Illustrative time",
@@ -1011,17 +1011,13 @@ const VueSimulator = defineComponent({
     const cachedDnsSubsteps = locale === "ru" ? russianCachedDnsSubsteps : englishCachedDnsSubsteps;
     const substepPurpose = locale === "ru" ? russianSubstepPurpose : englishSubstepPurpose;
     const technicalDetails = locale === "ru" ? russianTechnicalDetails : englishTechnicalDetails;
-    const url = ref("https://example.com");
     const cache = ref(false);
     const current = ref(-1);
     const done = ref(false);
     const flowRef = ref<HTMLElement | null>(null);
     const substepTrackRef = ref<HTMLElement | null>(null);
 
-    const secure = computed(() => {
-      try { return new URL(/^https?:\/\//i.test(url.value) ? url.value : `https://${url.value}`).protocol === "https:"; }
-      catch { return true; }
-    });
+    const secure = ref(true);
 
     const stageSubsteps = (stage: Stage) => stage.key === "dns" && cache.value ? cachedDnsSubsteps : stage.substeps;
     const route = computed<RouteUnit[]>(() => stages.flatMap((stage, stageIndex) => {
@@ -1053,22 +1049,12 @@ const VueSimulator = defineComponent({
       centerActive(substepTrackRef.value, ".substep-item.is-active");
     });
 
-    function normalizeUrl() {
-      try {
-        const parsed = new URL(/^https?:\/\//i.test(url.value.trim()) ? url.value.trim() : `https://${url.value.trim()}`);
-        url.value = parsed.href.replace(/\/$/, "");
-      } catch {
-        url.value = "https://example.com";
-      }
-    }
-
     function reset() {
       current.value = -1;
       done.value = false;
     }
 
     function nextStep() {
-      normalizeUrl();
       if (done.value) current.value = -1;
       done.value = false;
       if (current.value < route.value.length - 1) current.value += 1;
@@ -1086,7 +1072,6 @@ const VueSimulator = defineComponent({
 
     function jumpToRouteIndex(routeIndex: number) {
       if (routeIndex < 0) return;
-      normalizeUrl();
       done.value = false;
       current.value = routeIndex;
     }
@@ -1112,20 +1097,6 @@ const VueSimulator = defineComponent({
 
     return () => h("section", { class: "simulator", "aria-label": text.simulatorLabel }, [
       h("aside", { class: "control-panel" }, [
-        h("div", { class: "panel-kicker" }, [h("span", text.parameters), h("span", text.stepMode)]),
-        h("label", { class: "field-label", for: "sim-url" }, text.websiteAddress),
-        h("div", { class: "url-field" }, [
-          h("span", { class: "lock-glyph", "aria-hidden": "true" }, secure.value ? "◆" : "◇"),
-          h("input", {
-            id: "sim-url", value: url.value, inputmode: "url", spellcheck: false,
-            onInput: (event: Event) => url.value = (event.target as HTMLInputElement).value,
-            onKeydown: (event: KeyboardEvent) => {
-              if (event.key !== "Enter") return;
-              nextStep();
-            },
-          }),
-        ]),
-        h("div", { class: "control-divider" }),
         h("div", { class: "control-row" }, [
           h("div", [h("strong", text.dnsCache), h("small", cache.value ? text.ipKnown : text.fullLookup)]),
           h("button", {
@@ -1142,7 +1113,7 @@ const VueSimulator = defineComponent({
 
       h("div", { class: "simulation-stage" }, [
         h("div", { class: "stage-topline" }, [
-          h("div", [h("span", { class: "stage-index" }, activeStage.value ? String(activeStageIndex.value + 1).padStart(2, "0") : "00"), h("span", `/ ${String(stages.length).padStart(2, "0")}`)]),
+          h("div", [h("span", { class: "stage-index" }, activeStage.value ? String(activeStageIndex.value).padStart(2, "0") : "00"), h("span", `/ ${String(stages.length - 1).padStart(2, "0")}`)]),
           h("div", { class: "protocol-chip" }, [h("span", { class: secure.value ? "chip-dot secure" : "chip-dot" }), secure.value ? "HTTPS · 443" : "HTTP · 80"]),
         ]),
 

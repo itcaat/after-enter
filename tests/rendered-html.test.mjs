@@ -20,7 +20,7 @@ test("server-renders the After Enter product shell", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>What happens after you press Enter\?<\/title>/i);
+  assert.match(html, /<title>What happens after you press Enter in the browser\?<\/title>/i);
   assert.match(html, /What happens after you press/);
   assert.match(html, /class="vue-mount"/);
   assert.match(html, /Sources on Habr/);
@@ -37,7 +37,7 @@ test("keeps the bilingual React and Vue simulator wired", async () => {
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /What happens after you press Enter\?/);
+  assert.match(page, /What happens after you press Enter in the browser\?/);
   assert.match(shell, /<NetworkSimulator \/>/);
   assert.match(shell, /detectBrowserLocale/);
   assert.match(simulator, /createApp\(VueSimulator\)/);
@@ -54,6 +54,8 @@ test("keeps the bilingual React and Vue simulator wired", async () => {
   assert.match(simulator, /Metrics and telemetry/);
   assert.match(simulator, /getBoundingClientRect/);
   assert.match(simulator, /Math\.min\(maxScroll/);
+  assert.doesNotMatch(simulator, /ПОШАГОВО|STEP BY STEP|sim-url|Website address|Адрес сайта/);
+  assert.match(simulator, /stages\.length - 1/);
   assert.doesNotMatch(simulator, /setInterval|setTimeout\(nextStep/);
   assert.match(packageJson, /"react": "19\.2\.6"/);
   assert.match(packageJson, /"vue": "\^3\.5\.40"/);
