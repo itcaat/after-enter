@@ -237,11 +237,6 @@ const russianStages: Stage[] = [
   },
 ];
 
-const russianCachedDnsSubsteps: Substep[] = [
-  { label: "Попадание в кеш", detail: "Браузер сразу находит сохранённую DNS-запись и не обращается во внешнюю сеть.", signal: "browser DNS cache → 93.184.216.34", ms: 8, exchanges: 0 },
-  { label: "Happy Eyeballs", detail: "Даже для кешированных адресов клиент выбирает наиболее быстрое соединение IPv6 или IPv4.", signal: "cached AAAA ∥ A → fastest path", ms: 10, exchanges: 0 },
-];
-
 const russianSubstepPurpose: Record<string, string> = {
   "Ввод URL": "Запускает переход к сайту",
   "HID-сигнал": "Преобразует действие в системный ввод",
@@ -580,11 +575,6 @@ const englishStages: Stage[] = [
       { label: "Metrics and telemetry", detail: "Performance entries, traces, and logs record what happened for diagnostics.", signal: "timings → RUM / traces", ms: 4, exchanges: 0 },
     ],
   },
-];
-
-const englishCachedDnsSubsteps: Substep[] = [
-  { label: "Cache hit", detail: "The browser immediately finds the saved DNS record and avoids an external network request.", signal: "browser DNS cache → 93.184.216.34", ms: 8, exchanges: 0 },
-  { label: "Happy Eyeballs", detail: "Even with cached addresses, the client selects the fastest usable IPv6 or IPv4 connection.", signal: "cached AAAA ∥ A → fastest path", ms: 10, exchanges: 0 },
 ];
 
 const englishSubstepPurpose: Record<string, string> = {
@@ -978,7 +968,7 @@ const englishTechnicalDetails: Record<string, string> = {
 const uiCopy: Record<Locale, Record<string, string>> = {
   ru: {
     simulatorLabel: "Симулятор загрузки веб-страницы",
-    dnsCache: "DNS-кеш", ipKnown: "IP уже известен", fullLookup: "Полный поиск", back: "← Назад",
+    back: "← Назад",
     restart: "Сначала ↺", next: "Далее →", substepsOf: "из", substeps: "подшагов", loadingStages: "Этапы загрузки", goStage: "Перейти к этапу",
     stageSubsteps: "Подшаги этапа", goSubstep: "Перейти к подшагу", defaultPurpose: "Обеспечивает следующий этап",
     substepsPlaceholder: "Подшаги появятся после запуска", ready: "Готово", browser: "Браузер", pageReady: "Страница готова к работе",
@@ -990,7 +980,7 @@ const uiCopy: Record<Locale, Record<string, string>> = {
   },
   en: {
     simulatorLabel: "Web page loading simulator",
-    dnsCache: "DNS cache", ipKnown: "IP already known", fullLookup: "Full lookup", back: "← Back",
+    back: "← Back",
     restart: "Start over ↺", next: "Next →", substepsOf: "of", substeps: "substeps", loadingStages: "Loading stages", goStage: "Go to stage",
     stageSubsteps: "Substeps for", goSubstep: "Go to substep", defaultPurpose: "Enables the next stage",
     substepsPlaceholder: "Substeps will appear after you start", ready: "Ready", browser: "Browser", pageReady: "The page is ready",
@@ -1008,10 +998,8 @@ const VueSimulator = defineComponent({
     const locale = detectBrowserLocale();
     const text = uiCopy[locale];
     const stages = locale === "ru" ? russianStages : englishStages;
-    const cachedDnsSubsteps = locale === "ru" ? russianCachedDnsSubsteps : englishCachedDnsSubsteps;
     const substepPurpose = locale === "ru" ? russianSubstepPurpose : englishSubstepPurpose;
     const technicalDetails = locale === "ru" ? russianTechnicalDetails : englishTechnicalDetails;
-    const cache = ref(false);
     const current = ref(-1);
     const done = ref(false);
     const flowRef = ref<HTMLElement | null>(null);
@@ -1019,7 +1007,7 @@ const VueSimulator = defineComponent({
 
     const secure = ref(true);
 
-    const stageSubsteps = (stage: Stage) => stage.key === "dns" && cache.value ? cachedDnsSubsteps : stage.substeps;
+    const stageSubsteps = (stage: Stage) => stage.substeps;
     const route = computed<RouteUnit[]>(() => stages.flatMap((stage, stageIndex) => {
       if (stage.key === "tls" && !secure.value) return [];
       return stageSubsteps(stage).map((substep, substepIndex) => ({ ...substep, stageIndex, substepIndex }));
@@ -1048,11 +1036,6 @@ const VueSimulator = defineComponent({
       centerActive(flowRef.value, ".flow-step.is-active");
       centerActive(substepTrackRef.value, ".substep-item.is-active");
     });
-
-    function reset() {
-      current.value = -1;
-      done.value = false;
-    }
 
     function nextStep() {
       if (done.value) current.value = -1;
@@ -1096,24 +1079,16 @@ const VueSimulator = defineComponent({
     };
 
     return () => h("section", { class: "simulator", "aria-label": text.simulatorLabel }, [
-      h("aside", { class: "control-panel" }, [
-        h("div", { class: "control-row" }, [
-          h("div", [h("strong", text.dnsCache), h("small", cache.value ? text.ipKnown : text.fullLookup)]),
-          h("button", {
-            type: "button", class: ["switch", cache.value && "is-on"], role: "switch", "aria-label": text.dnsCache, "aria-checked": cache.value,
-            onClick: () => { cache.value = !cache.value; reset(); },
-          }, h("span")),
-        ]),
-        h("div", { class: "manual-controls" }, [
-          h("button", { type: "button", class: "manual-button", disabled: current.value < 0, onClick: previousStep }, text.back),
-          h("button", { type: "button", class: "manual-button is-primary", onClick: nextStep }, done.value ? text.restart : text.next),
-        ]),
-        h("p", { class: "estimate" }, `${Math.min(current.value + 1, route.value.length)} ${text.substepsOf} ${route.value.length} ${text.substeps}`),
-      ]),
-
       h("div", { class: "simulation-stage" }, [
         h("div", { class: "stage-topline" }, [
-          h("div", [h("span", { class: "stage-index" }, activeStage.value ? String(activeStageIndex.value).padStart(2, "0") : "00"), h("span", `/ ${String(stages.length - 1).padStart(2, "0")}`)]),
+          h("div", { class: "stage-navigation" }, [
+            h("div", { class: "stage-counter" }, [h("span", { class: "stage-index" }, activeStage.value ? String(activeStageIndex.value).padStart(2, "0") : "00"), h("span", `/ ${String(stages.length - 1).padStart(2, "0")}`)]),
+            h("div", { class: "manual-controls" }, [
+              h("button", { type: "button", class: "manual-button", disabled: current.value < 0, onClick: previousStep }, text.back),
+              h("button", { type: "button", class: "manual-button is-primary", onClick: nextStep }, done.value ? text.restart : text.next),
+            ]),
+            h("p", { class: "estimate" }, `${Math.min(current.value + 1, route.value.length)} ${text.substepsOf} ${route.value.length} ${text.substeps}`),
+          ]),
           h("div", { class: "protocol-chip" }, [h("span", { class: secure.value ? "chip-dot secure" : "chip-dot" }), secure.value ? "HTTPS · 443" : "HTTP · 80"]),
         ]),
 
