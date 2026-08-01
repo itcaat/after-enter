@@ -6,8 +6,8 @@ import { NetworkSimulator } from "./network-simulator";
 
 const shellCopy: Record<Locale, { title: string; description: string; brand: string }> = {
   ru: {
-    title: "Что происходит после нажатия Enter в браузере?",
-    description: "Интерактивный путь через ОС, DNS, интернет, CDN, backend и рендеринг страницы.",
+    title: "Что происходит после нажатия Enter в адресной строке браузера?",
+    description: "Интерактивный путь запроса через ОС, DNS, интернет, CDN, backend и рендеринг страницы.",
     brand: "Что происходит после нажатия",
   },
   en: {
@@ -35,7 +35,7 @@ export function LocalizedShell() {
   return (
     <main className="page-shell">
       <header id="top" className="site-header">
-        <a className="brand" href="#top">{copy.brand} <em>{locale === "ru" ? "Enter в браузере?" : "Enter in the browser?"}</em></a>
+        <a className="brand" href="#top">{copy.brand} <em>{locale === "ru" ? "Enter в адресной строке браузера?" : "Enter in the browser?"}</em></a>
       </header>
 
       <NetworkSimulator />
