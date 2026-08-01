@@ -59,6 +59,9 @@ test("keeps the bilingual React and Vue simulator wired", async () => {
   assert.match(simulator, /stages\.length - 1/);
   assert.match(simulator, /class: "stage-navigation"/);
   assert.doesNotMatch(simulator, /role: "switch"|class: \["switch"|control-panel|cachedDnsSubsteps/);
+  assert.match(simulator, /Вау, ты справился!/);
+  assert.match(simulator, /Follow @devopsbrain/);
+  assert.match(simulator, /class: "completion-cta"/);
   assert.doesNotMatch(simulator, /setInterval|setTimeout\(nextStep/);
   assert.match(packageJson, /"react": "19\.2\.6"/);
   assert.match(packageJson, /"vue": "\^3\.5\.40"/);
