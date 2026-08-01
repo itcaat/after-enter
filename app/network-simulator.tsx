@@ -44,6 +44,7 @@ const uiCopy: Record<Locale, Record<string, string>> = {
     enterAddress: "Нажмите «Далее», чтобы начать путь", doneDetail: "Ты дошёл до последнего слайда и теперь действительно знаешь, что происходит после нажатия Enter в браузере.",
     doneTechnical: "За одним нажатием скрывается огромный путь: устройство и ОС, DNS и физическая сеть, транспорт и шифрование, серверное приложение, JavaScript и финальный кадр. Сохрани этот симулятор, чтобы быстро восстановить всю цепочку в памяти.",
     doneCta: "Подписаться на @devopsbrain →", doneSignal: "knowledge → unlocked",
+    swipeHint: "Свайпните по описанию ← →",
     introDetail: "Вы увидите не только большие этапы, но и каждый внутренний подшаг.",
     introTechnical: "На каждом подшаге ниже появятся конкретные протоколы, структуры данных и сетевые обмены. Некоторые механизмы альтернативны друг другу или пропускаются благодаря кешу; время условное и служит только для сравнения.", conditionalTime: "Условное время",
     networkExchanges: "Сетевые обмены", currentNode: "Текущий узел", interactive: "Интерактив", milliseconds: "мс",
@@ -57,6 +58,7 @@ const uiCopy: Record<Locale, Record<string, string>> = {
     enterAddress: "Press Next to start the journey", doneDetail: "You reached the final slide and now truly know what happens after you press Enter in the browser.",
     doneTechnical: "A single key press hides an enormous journey through the device and OS, DNS and the physical network, transport and encryption, server applications, JavaScript, and the final frame. Save this simulator whenever you need to rebuild the whole chain in your head.",
     doneCta: "Follow @devopsbrain →", doneSignal: "knowledge → unlocked",
+    swipeHint: "Swipe the description ← →",
     introDetail: "You will see every major stage and each of its internal substeps.",
     introTechnical: "Each substep names concrete protocols, data structures, and network exchanges. Some mechanisms are alternatives or are skipped on a cache hit; timing is illustrative and only supports comparison.", conditionalTime: "Illustrative time",
     networkExchanges: "Network exchanges", currentNode: "Current node", interactive: "Interactive", milliseconds: "ms",
@@ -75,6 +77,7 @@ const VueSimulator = defineComponent({
     const done = ref(false);
     const flowRef = ref<HTMLElement | null>(null);
     const substepTrackRef = ref<HTMLElement | null>(null);
+    let swipeStart: { x: number; y: number } | null = null;
 
     const secure = ref(true);
 
@@ -122,6 +125,24 @@ const VueSimulator = defineComponent({
       } else {
         current.value = Math.max(-1, current.value - 1);
       }
+    }
+
+    function startDescriptionSwipe(event: TouchEvent) {
+      if (event.touches.length !== 1 || (event.target as Element).closest("a, button")) {
+        swipeStart = null;
+        return;
+      }
+      swipeStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    }
+
+    function finishDescriptionSwipe(event: TouchEvent) {
+      if (!swipeStart || event.changedTouches.length !== 1) return;
+      const deltaX = event.changedTouches[0].clientX - swipeStart.x;
+      const deltaY = event.changedTouches[0].clientY - swipeStart.y;
+      swipeStart = null;
+      if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.2) return;
+      if (deltaX < 0) nextStep();
+      else previousStep();
     }
 
     function jumpToRouteIndex(routeIndex: number) {
@@ -199,7 +220,12 @@ const VueSimulator = defineComponent({
               h("span", { class: "substep-why" }, substepPurpose[substep.label] ?? text.defaultPurpose),
             ]))
           ) : h("div", { class: "substep-placeholder" }, text.substepsPlaceholder),
-          h("div", { class: "event-content" }, [
+          h("div", {
+            class: "event-content",
+            onTouchstart: startDescriptionSwipe,
+            onTouchend: finishDescriptionSwipe,
+            onTouchcancel: () => { swipeStart = null; },
+          }, [
             h("div", { class: "event-copy" }, [
               h("span", { class: "event-actor" }, done.value ? text.ready : activeStage.value?.title ?? text.browser),
               h("h2", done.value ? text.pageReady : activeUnit.value?.label ?? text.enterAddress),
@@ -214,6 +240,7 @@ const VueSimulator = defineComponent({
               }, text.doneCta) : null,
             ]),
             h("code", { class: "signal-line" }, done.value ? text.doneSignal : activeUnit.value?.signal ?? "awaiting input…"),
+            h("span", { class: "swipe-hint", "aria-hidden": "true" }, text.swipeHint),
           ]),
         ]),
 

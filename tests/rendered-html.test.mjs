@@ -58,6 +58,9 @@ test("keeps the bilingual React and Vue simulator wired", async () => {
   assert.match(simulator, /Вау, ты справился!/);
   assert.match(simulator, /Follow @devopsbrain/);
   assert.match(simulator, /class: "completion-cta"/);
+  assert.match(simulator, /onTouchstart: startDescriptionSwipe/);
+  assert.match(simulator, /Math\.abs\(deltaX\) < 48/);
+  assert.match(simulator, /swipeHint/);
   assert.doesNotMatch(simulator, /setInterval|setTimeout\(nextStep/);
   assert.match(packageJson, /"react": "19\.2\.6"/);
   assert.match(packageJson, /"vue": "\^3\.5\.40"/);
