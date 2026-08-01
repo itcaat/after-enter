@@ -31,28 +31,24 @@ test("server-renders the After Enter product shell", async () => {
 });
 
 test("keeps the bilingual React and Vue simulator wired", async () => {
-  const [page, shell, simulator, packageJson] = await Promise.all([
+  const [page, shell, simulator, packageJson, russianJson, englishJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/localized-shell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/network-simulator.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/simulator-data/ru.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/simulator-data/en.json", import.meta.url), "utf8"),
   ]);
+  const russianData = JSON.parse(russianJson);
+  const englishData = JSON.parse(englishJson);
 
   assert.match(page, /What happens after you press Enter in the browser\?/);
   assert.match(shell, /<NetworkSimulator \/>/);
   assert.match(shell, /detectBrowserLocale/);
   assert.match(simulator, /createApp\(VueSimulator\)/);
-  assert.match(simulator, /const russianStages: Stage\[\]/);
-  assert.match(simulator, /const englishStages: Stage\[\]/);
-  assert.match(simulator, /QUIC \/ HTTP\/3/);
-  assert.match(simulator, /BGP и Anycast/);
-  assert.match(simulator, /Edge infrastructure/);
-  assert.match(simulator, /USB или Bluetooth/);
-  assert.match(simulator, /Network adapter queue/);
-  assert.match(simulator, /Conntrack и фильтры/);
-  assert.match(simulator, /Bytecode and JIT/);
-  assert.match(simulator, /Accessibility tree/);
-  assert.match(simulator, /Metrics and telemetry/);
+  assert.match(simulator, /import englishData from "\.\/simulator-data\/en\.json"/);
+  assert.match(simulator, /import russianData from "\.\/simulator-data\/ru\.json"/);
+  assert.doesNotMatch(simulator, /QUIC \/ HTTP\/3|BGP и Anycast|Edge infrastructure|USB или Bluetooth/);
   assert.match(simulator, /getBoundingClientRect/);
   assert.match(simulator, /Math\.min\(maxScroll/);
   assert.doesNotMatch(simulator, /ПОШАГОВО|STEP BY STEP|sim-url|Website address|Адрес сайта/);
@@ -66,6 +62,19 @@ test("keeps the bilingual React and Vue simulator wired", async () => {
   assert.match(packageJson, /"react": "19\.2\.6"/);
   assert.match(packageJson, /"vue": "\^3\.5\.40"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
+
+  for (const data of [russianData, englishData]) {
+    assert.equal(data.stages.length, 17);
+    assert.equal(data.stages.flatMap((stage) => stage.substeps).length, 124);
+    for (const substep of data.stages.flatMap((stage) => stage.substeps)) {
+      assert.equal(typeof data.purposes[substep.label], "string");
+      assert.equal(typeof data.technicalDetails[substep.label], "string");
+    }
+  }
+  assert.match(russianJson, /BGP и Anycast/);
+  assert.match(russianJson, /USB или Bluetooth/);
+  assert.match(englishJson, /Edge infrastructure/);
+  assert.match(englishJson, /Accessibility tree/);
 
   assert.deepEqual(await readdir(new URL("../app/_sites-preview", import.meta.url)), []);
 });
