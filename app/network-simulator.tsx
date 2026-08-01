@@ -1038,9 +1038,13 @@ const VueSimulator = defineComponent({
     function centerActive(container: HTMLElement | null, selector: string) {
       const target = container?.querySelector<HTMLElement>(selector);
       if (!container || !target) return;
-      const left = target.offsetLeft - (container.clientWidth - target.offsetWidth) / 2;
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const targetCenter = container.scrollLeft + targetRect.left - containerRect.left + targetRect.width / 2;
+      const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+      const left = Math.min(maxScroll, Math.max(0, targetCenter - container.clientWidth / 2));
       const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-      container.scrollTo({ left: Math.max(0, left), behavior });
+      container.scrollTo({ left, behavior });
     }
 
     watch(current, async () => {
