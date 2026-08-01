@@ -107,6 +107,10 @@ a { color: inherit; }
 .metric-row strong { font-size: 20px; font-weight: 500; }
 .metric-row strong small { color: var(--muted); font-size: 10px; }
 
+.site-footer { display: flex; justify-content: flex-end; padding: 22px 0 0; color: var(--muted); font: 500 10px/1.4 var(--font-plex-mono), monospace; text-transform: uppercase; }
+.site-footer a { text-underline-offset: 4px; transition: color .2s ease; }
+.site-footer a:hover { color: var(--acid); }
+
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
 @media (max-width: 1000px) {
@@ -132,6 +136,7 @@ a { color: inherit; }
   .event-actor { margin-bottom: 20px; }
   .signal-line { margin-top: 4px; }
   .substep-track { padding-bottom: 16px; }
+  .site-footer { justify-content: flex-start; }
 }
 
 @media (max-width: 460px) {

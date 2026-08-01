@@ -39,6 +39,10 @@ export function LocalizedShell() {
       </header>
 
       <NetworkSimulator />
+
+      <footer className="site-footer">
+        <a href="https://t.me/devopsbrain" target="_blank" rel="noreferrer">Telegram · @devopsbrain ↗</a>
+      </footer>
     </main>
   );
 }
