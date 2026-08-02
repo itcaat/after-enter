@@ -50,9 +50,6 @@ a { color: inherit; }
 .stage-navigation { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .stage-counter { display: flex; align-items: baseline; white-space: nowrap; }
 .stage-index { color: var(--paper); font-size: 26px; }
-.protocol-chip { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border: 1px solid var(--line); border-radius: 99px; }
-.chip-dot { width: 6px; height: 6px; border-radius: 50%; background: #d4836b; }
-.chip-dot.secure { background: var(--mint); }
 .flow { display: grid; align-items: start; overflow-x: auto; margin: 62px 0 22px; padding: 16px 12px 14px; scroll-padding-inline: 50%; scroll-snap-type: x proximity; scrollbar-color: var(--acid) transparent; scrollbar-width: thin; overscroll-behavior-inline: contain; }
 .flow-step { min-width: 0; color: var(--muted); transition: color .25s ease, transform .25s ease; }
 .flow-node { display: flex; align-items: center; }

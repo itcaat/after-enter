@@ -181,7 +181,6 @@ const VueSimulator = defineComponent({
             ]),
             h("p", { class: "estimate" }, `${Math.min(current.value + 1, route.value.length)} ${text.substepsOf} ${route.value.length} ${text.substeps}`),
           ]),
-          h("div", { class: "protocol-chip" }, [h("span", { class: secure.value ? "chip-dot secure" : "chip-dot" }), secure.value ? "HTTPS · 443" : "HTTP · 80"]),
         ]),
 
         h("div", { ref: flowRef, class: "flow", role: "list", "aria-label": text.loadingStages, style: { gridTemplateColumns: `repeat(${stages.length}, minmax(96px, 1fr))` } }, stages.map((stage, index) =>
